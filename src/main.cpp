@@ -1,29 +1,27 @@
-#include <stdio.h>
-#include <stdbool.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_timer.h>
+#include "definitions.h"
 
 int main(void)
 {
-    // Attempt to initialize graphics and timer system.
+    //그래픽, 타이머 초기설정
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) != 0)
     {
         printf("error initializing SDL: %s\n", SDL_GetError());
         return 1;
     }
 
+    //창 설정. 이거 하고 난 다음에 render를 해주면 그래픽을 위에 입힐 수 있다고 함.
     SDL_Window* window = SDL_CreateWindow("Hello, SDL2 on macOS 🍎",
                                        SDL_WINDOWPOS_CENTERED,
                                        SDL_WINDOWPOS_CENTERED,
                                        640, 480, 0);
     if (!window)
     {
-        printf("error creating window: %s\n", SDL_GetError());
+        printf("창 생성 실패: %s\n", SDL_GetError());
         SDL_Quit();
         return 1;
     }
 
-    // Keep the window open, in this case SDL_Delay(5000); statement won't work.
+    // SDL_QUIT 이벤트가 발생될때까지 창을 계속 띄워두는 코드 부분
     bool running = true;
     while (running)
     {
