@@ -350,6 +350,7 @@ int8_t init_game() {
   return init_graphics();
 }
 
+//listen_for_input(input.c)를 받은 뒤, QUIT이면 종료, 게임오버상태에서 입력시 재시작, 게임오버상태가 아니면 게임 진행
 int8_t game_loop() {
   enum InputEvent event = listen_for_input(game_over);
   if (event == QUIT) {
@@ -371,6 +372,7 @@ int8_t game_loop() {
   return 0;
 }
 
+//게임 리소스 반환 후 0 반환
 int8_t terminate_game() {
   release_resources();
   return 0;

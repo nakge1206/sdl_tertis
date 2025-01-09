@@ -2,6 +2,7 @@
 #include "definitions.h"
 #include <SDL_keycode.h>
 
+//키보드에서 눌린 키의 키 코드를 받아 토큰 반환
 static int handle_key_down(SDL_Keycode key_code) {
   switch (key_code) {
   case SDLK_ESCAPE:
@@ -24,6 +25,7 @@ static int handle_key_down(SDL_Keycode key_code) {
   return ANY_INPUT;
 }
 
+//SDL_Event를 활용해, SDL_QUIT가 받아졌으면 QUIT를, 키보드가 눌렸다면 해당 키보드의 반환값을 반환.
 int listen_for_input(int game_over) {
   SDL_Event event;
 
