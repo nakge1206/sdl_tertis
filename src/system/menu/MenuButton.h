@@ -2,22 +2,28 @@
 #define MENU_BUTTON_H
 
 #include "../../definitions.h"
+#include "../sdl/SDL_font.h"
 #include <string>
 
 class MenuButton {
 public:
     MenuButton() {}
-    MenuButton(SDL_Renderer* renderer, const std::string& text, int x, int y, int width, int height, int fontSize);
+    MenuButton(SDL_Renderer* rend, const std::string& text, int x, int y, int width, int height, int fontSize);
     ~MenuButton();
 
     void render();
+
+    void setPosition(int x, int y);
+    void setPosition(int x, int y, int w, int h, int fontSize);
+    void setPosition(SDL_Rect destRect);
+
     bool isMouseOver(int mouseX, int mouseY) const;
     void setHighlight(bool highlight);
     void setOnClick(void (*onClick)());
     std::string getText() const { return text; } // 텍스트를 반환하는 함수 추가
 
 private:
-    SDL_Renderer* renderer;
+    SDL_Renderer* rend;
     SDL_Rect rect;
     std::string text;
     bool highlight;

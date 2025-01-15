@@ -1,7 +1,7 @@
 #include "MenuButton.h"
 
-MenuButton::MenuButton(SDL_Renderer* renderer, const std::string& text, int x, int y, int width, int height, int fontSize)
-    : renderer(renderer), text(text), highlight(false), onClick(nullptr), fontSize(fontSize){
+MenuButton::MenuButton(SDL_Renderer* rend, const std::string& text, int x, int y, int width, int height, int fontSize)
+    : rend(rend), text(text), highlight(false), onClick(nullptr), fontSize(fontSize){
     rect.x= x; rect.y=y; rect.w=width; rect.h=height;
 
     //버튼 색상 정보
@@ -13,47 +13,52 @@ MenuButton::MenuButton(SDL_Renderer* renderer, const std::string& text, int x, i
 MenuButton::~MenuButton() {}
 
 void MenuButton::render() {
-    SDL_SetRenderDrawColor(renderer, defaultColor.r, defaultColor.g, defaultColor.b, defaultColor.a);
-    SDL_RenderFillRect(renderer, &rect);
+    //defaultColor로 rend의 색 설정
+    SDL_SetRenderDrawColor(rend, defaultColor.r, defaultColor.g, defaultColor.b, defaultColor.a);
+    //rect에 rend색 입히기
+    SDL_RenderFillRect(rend, &rect);
     if (highlight) {
-        SDL_SetRenderDrawColor(renderer, highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a);
-        SDL_RenderDrawRect(renderer, &rect);
+        SDL_SetRenderDrawColor(rend, highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a);
+        SDL_RenderDrawRect(rend, &rect);
     }
 
     // 텍스트 렌더링 (TTF 필요)
-    TTF_Font* font = TTF_OpenFont("src/assets/font.ttf", fontSize);
-    if (!font) {
-        std::cerr << "폰트 불러오기 오류: " << TTF_GetError() << std::endl;
-        return;
-    }
-
     SDL_Color textColor = {0, 0, 0, 255}; //검은색
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
-    if (!textSurface) {
-        std::cerr << "텍스트 렌더링 오류: " << TTF_GetError() << std::endl;
-        return;
-    }
-    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-    if (!textTexture) {
-        std::cerr << "텍스처 생성 오류: " << SDL_GetError() << std::endl;
-        SDL_FreeSurface(textSurface);
-        return;
-    }
+    SDL_font buttonText;
+    buttonText.initFont(rend, "font", fontSize);
+    buttonText.textSetting(text, textColor);
 
-    //텍스트 가운데 정렬
     SDL_Rect textRect;
-    textRect.w = textSurface->w;
-    textRect.h = textSurface->h;
-    textRect.x = rect.x + (rect.w - textRect.w) / 2; // 버튼 중앙에 텍스트 정렬
+    textRect.w = buttonText.getSurfaceInfo('w');
+    textRect.h = buttonText.getSurfaceInfo('h');
+    textRect.x = rect.x + (rect.w - textRect.w) / 2;
     textRect.y = rect.y + (rect.h - textRect.h) / 2;
 
-    SDL_RenderCopy(renderer, textTexture, nullptr, &textRect);
+    buttonText.setPosition(textRect);
 
-    SDL_FreeSurface(textSurface);
-    SDL_DestroyTexture(textTexture);
-    TTF_CloseFont(font);
+    buttonText.render();
 }
 
+void MenuButton::setPosition(int x, int y){
+    setPosition(x, y, rect.w, rect.h, fontSize);
+}
+
+void MenuButton::setPosition(int x, int y, int w, int h, int fontSize){
+    rect.x = x;
+    rect.y = y;
+    rect.w = w;
+    rect.h = h;
+    
+}
+
+void MenuButton::setPosition(SDL_Rect destRect){
+    rect.x = destRect.x;
+    rect.y = destRect.y;
+    rect.w = destRect.w;
+    rect.h = destRect.h;
+}
+
+//이건 나중에 설정. 일단 띄우는거부터 해결해야함.
 bool MenuButton::isMouseOver(int mouseX, int mouseY) const {
     return mouseX >= rect.x && mouseX <= rect.x + rect.w &&
            mouseY >= rect.y && mouseY <= rect.y + rect.h;

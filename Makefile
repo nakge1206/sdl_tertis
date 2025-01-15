@@ -2,8 +2,8 @@
 
 #소스파일 경로
 SRC = ./src/main.cpp ./src/system/Window.cpp ./src/system/menu/MenuButton.cpp \
-./src/system/menu/Particle.cpp ./src/system/menu/MenuCreate.cpp \
-./src/system/menu/TotalMenu.cpp
+./src/system/menu/Particle.cpp \
+./src/system/menu/TotalMenu.cpp ./src/system/sdl/SDL_font.cpp
 #HDR = ./src/sdl/menuSample.h ./src/sdl/window_menu.h
 #HDR = ./src/Menu/MenuButton.h ./src/sdl/Particle.h
 OBJ = main #결과물 이름

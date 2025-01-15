@@ -4,7 +4,6 @@
 #include "../definitions.h"
 #include "menu/MenuButton.h"
 #include "menu/Particle.h"
-#include "menu/MenuCreate.h"
 #include "menu/TotalMenu.h"
 
 class Window { //초기 창 열기
@@ -12,6 +11,7 @@ private:
     SDL_Window* window;
     SDL_Renderer* rend;
     bool isRunning;
+    bool isWindowResized;
 
     //게임 상태 및 현재 상태
     enum GameState {

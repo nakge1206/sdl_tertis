@@ -5,7 +5,7 @@ const int FPS = 60;
 const int FRAME_DELAY = 1000/FPS;
 
 Window::Window()
-    : window(nullptr), rend(nullptr), isRunning(false), frameStart(0), frameTime(0), currentState(MAIN_MENU), menus(nullptr, nullptr){}
+    : window(nullptr), rend(nullptr), isRunning(false), frameStart(0), frameTime(0), currentState(MAIN_MENU), menus(nullptr, nullptr), isWindowResized(false){}
 
 Window::~Window(){
     Shutdown();
@@ -42,8 +42,8 @@ bool Window::initSetting(const char* title, int width, int height){
     //메뉴창 설정 수정필요
     menus = TotalMenu(rend, window);
     menus.initMainMenu();
-    menus.initPauseMenu();
-    menus.initSettingMenu();
+    //menus.initPauseMenu();
+    //menus.initSettingMenu();
 
     isRunning = true;
     return true;
@@ -69,6 +69,11 @@ void Window::HandleEvents(){
     while(SDL_PollEvent(&event)){
         if (event.type == SDL_QUIT) {
             isRunning = false;
+        }
+        if(event.type == SDL_WINDOWEVENT){
+            if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
+                isWindowResized = true;
+            }
         }
     }
 }
@@ -100,6 +105,7 @@ void Window::Render(){
     switch (currentState) {
         case MAIN_MENU: {
             menus.setMenu(menus.callType(0));
+            menus.render(isWindowResized);
             break;
         }
         case GAME: {
@@ -112,7 +118,7 @@ void Window::Render(){
             break;
         }
         case SETTINGS: {
-            menus.setMenu(menus.callType(2));
+            //menus.setMenu(menus.callType(2));
             //디버그:노란색
             // SDL_SetRenderDrawColor(rend, 255, 255, 0, 255);
             // SDL_Rect settingsRect = {200, 200, 200, 100};
