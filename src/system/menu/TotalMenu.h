@@ -19,6 +19,7 @@ private:
     //메인메뉴 구현에 필요한 변수들
     std::vector<MenuButton> mainMenuButtons;
     SDL_font title;
+    SDL_font madeBy;
     float WidthRatio;
     float HeightRatio;
     float SpacingRatio;
@@ -37,7 +38,7 @@ private:
     // 배경 투명도 (일시 정지 화면용)
     //int pauseBackgroundAlpha;
 
-    void renderMainMenu(bool isWindowResized);
+    void renderMainMenu();
     //void renderPauseMenu();
     //void renderSettingMenu();
 
@@ -51,12 +52,10 @@ public:
     //void initPauseMenu();
     //void initSettingMenu();
 
-    void setPosition(MenuType type);
-
     MenuType callType(int num);
 
     // 메뉴 렌더링
-    void render(bool isWindowResized);
+    void render();
 
     // 메뉴 변경
     void setMenu(MenuType menu);

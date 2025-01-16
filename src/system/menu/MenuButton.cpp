@@ -7,7 +7,7 @@ MenuButton::MenuButton(SDL_Renderer* rend, const std::string& text, int x, int y
     //버튼 색상 정보
     //나중에 이거 설정할 수 있게 바꾸면 될듯(현재는 기본 검은색, 하이라이트는 노란색)
     defaultColor.r=255; defaultColor.g=255; defaultColor.b=255; defaultColor.a=255; //검은색
-    highlightColor.r=255; highlightColor.g=255; highlightColor.b=0; highlightColor.a=255; //노란색
+    highlightColor.r=211; highlightColor.g=211; highlightColor.b=211; highlightColor.a=255; //노란색
 }
 
 MenuButton::~MenuButton() {}
@@ -19,10 +19,10 @@ void MenuButton::render() {
     SDL_RenderFillRect(rend, &rect);
     if (highlight) {
         SDL_SetRenderDrawColor(rend, highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a);
-        SDL_RenderDrawRect(rend, &rect);
+        SDL_RenderFillRect(rend, &rect);
     }
 
-    // 텍스트 렌더링 (TTF 필요)
+    //글자 가운데 정렬
     SDL_Color textColor = {0, 0, 0, 255}; //검은색
     SDL_font buttonText;
     buttonText.initFont(rend, "font", fontSize);
@@ -48,7 +48,7 @@ void MenuButton::setPosition(int x, int y, int w, int h, int fontSize){
     rect.y = y;
     rect.w = w;
     rect.h = h;
-    
+
 }
 
 void MenuButton::setPosition(SDL_Rect destRect){
@@ -58,7 +58,6 @@ void MenuButton::setPosition(SDL_Rect destRect){
     rect.h = destRect.h;
 }
 
-//이건 나중에 설정. 일단 띄우는거부터 해결해야함.
 bool MenuButton::isMouseOver(int mouseX, int mouseY) const {
     return mouseX >= rect.x && mouseX <= rect.x + rect.w &&
            mouseY >= rect.y && mouseY <= rect.y + rect.h;
@@ -70,4 +69,8 @@ void MenuButton::setHighlight(bool highlight) {
 
 void MenuButton::setOnClick(void (*onClick)()) {
     this->onClick = onClick;
+}
+
+void MenuButton::setprint(){
+    std::cout << text << " is click! " << std::endl;
 }

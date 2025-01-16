@@ -20,6 +20,7 @@ public:
     bool isMouseOver(int mouseX, int mouseY) const;
     void setHighlight(bool highlight);
     void setOnClick(void (*onClick)());
+    void setprint();
     std::string getText() const { return text; } // 텍스트를 반환하는 함수 추가
 
 private:

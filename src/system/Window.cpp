@@ -5,7 +5,8 @@ const int FPS = 60;
 const int FRAME_DELAY = 1000/FPS;
 
 Window::Window()
-    : window(nullptr), rend(nullptr), isRunning(false), frameStart(0), frameTime(0), currentState(MAIN_MENU), menus(nullptr, nullptr), isWindowResized(false){}
+    : window(nullptr), rend(nullptr), isRunning(false), frameStart(0), frameTime(0), currentState(MAIN_MENU), menus(nullptr, nullptr), isWindowResized(false){
+}
 
 Window::~Window(){
     Shutdown();
@@ -38,9 +39,11 @@ bool Window::initSetting(const char* title, int width, int height){
         SDL_Quit();
         return false;
     }
+    SDL_RenderSetLogicalSize(rend, LOGICAL_WIDTH, LOGICAL_HEIGHT);
 
     //메뉴창 설정 수정필요
     menus = TotalMenu(rend, window);
+    //initMainMenu에서 세그멘테이션 오류뜸.
     menus.initMainMenu();
     //menus.initPauseMenu();
     //menus.initSettingMenu();
@@ -105,7 +108,7 @@ void Window::Render(){
     switch (currentState) {
         case MAIN_MENU: {
             menus.setMenu(menus.callType(0));
-            menus.render(isWindowResized);
+            menus.render();
             break;
         }
         case GAME: {
@@ -134,13 +137,13 @@ void Window::Render(){
 }
 
 void Window::Shutdown(){
-    if(rend){
-        SDL_DestroyRenderer(rend);
-        rend = nullptr;
-    }
     if(window){
         SDL_DestroyWindow(window);
         window = nullptr;
+    }
+    if(rend){
+        SDL_DestroyRenderer(rend);
+        rend = nullptr;
     }
     TTF_Quit();
     SDL_Quit();

@@ -11,7 +11,7 @@ OBJ = main #결과물 이름
 #컴파일러, 플래그
 CXX = g++
 
-CXXFLAGS = -I/Library/Frameworks/SDL2.framework/Headers \
+CXXFLAGS = -g -I/Library/Frameworks/SDL2.framework/Headers \
 		-I/Library/Frameworks/SDL2_ttf.framework/Headers \
 		-I./src/sdl #SDL2 헤더파일 경로
 

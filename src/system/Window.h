@@ -1,5 +1,4 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#pragma once
 
 #include "../definitions.h"
 #include "menu/MenuButton.h"
@@ -39,4 +38,3 @@ public:
     void Run(); //실행
     void Shutdown(); //랜더러, 윈도우 삭제하고, SDL끝내기.
 };
-#endif

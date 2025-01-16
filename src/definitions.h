@@ -5,3 +5,9 @@
 #include <stdbool.h>
 
 #define game_version "1.0"
+
+#define WIDTH 960
+#define HEIGHT 540
+
+#define LOGICAL_WIDTH 960
+#define LOGICAL_HEIGHT 540

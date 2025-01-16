@@ -1,14 +1,19 @@
 #include "SDL_font.h"
 
 SDL_font::SDL_font()
-    : rend(nullptr), font(nullptr), texture(nullptr), surface(nullptr){
+    : rend(nullptr), texture(nullptr), surface(nullptr){
 
     }
 
 SDL_font::~SDL_font(){
-    SDL_FreeSurface(surface);
-    SDL_DestroyTexture(texture);
-    TTF_CloseFont(font);
+    if (surface) {
+        SDL_FreeSurface(surface);
+        surface = nullptr;
+    }
+    if (texture) {
+        SDL_DestroyTexture(texture);
+        texture = nullptr;
+    }
 }
 
 void SDL_font::initFont(SDL_Renderer* render, const std::string& fontName, int fontSize){
@@ -20,6 +25,7 @@ void SDL_font::initFont(SDL_Renderer* render, const std::string& fontName, int f
         std::cerr << "폰트열기 오류: " << SDL_GetError() << std::endl;
         throw std::runtime_error("TTF_OpenFont 실패: 폰트를 열 수 없습니다.");
     }
+    // std::cout << "initFont complete" << std::endl;
 }
 
 void SDL_font::textSetting(const std::string& text, SDL_Color textColor){
@@ -38,6 +44,8 @@ void SDL_font::textSetting(const std::string& text, SDL_Color textColor){
     destRect.y = 50;
     destRect.w = surface->w;
     destRect.h = surface->h;
+
+    // std::cout << "textSetting complete" << std::endl;
 }
 
 void SDL_font::setPosition(float x, float y) {
@@ -64,9 +72,6 @@ int SDL_font::getSurfaceInfo(char m){
     else return 0;
 }
 
-TTF_Font* SDL_font::getFont(){
-    return font;
-}
 
 void SDL_font::render(){
     SDL_RenderCopy(rend, texture, nullptr, &destRect);

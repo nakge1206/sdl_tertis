@@ -3,91 +3,71 @@
 #include <iostream>
 
 TotalMenu::TotalMenu(SDL_Renderer* rend, SDL_Window* window)
-    : rend(rend), window(window), currentMenu(MAIN){}
+    : rend(rend), window(window), currentMenu(MAIN) {}
 
-TotalMenu::~TotalMenu() {}
+TotalMenu::~TotalMenu() {
+}
 
-//이건 메뉴 버튼 초기화 하는거임.
+//메인메뉴 화면 미리 정해놓기
 void TotalMenu::initMainMenu() {
     mainMenuButtons.clear();
-    //main의 기본설정인 1280x760 기준으로 초기세팅만 해두었음.
-    mainMenuButtons.emplace_back(rend, "Start_Game", 484, 288, 320, 96, 48);
-    mainMenuButtons.emplace_back(rend, "Setting", 484, 432, 320, 96, 48);
-    mainMenuButtons.emplace_back(rend, "Quit", 484, 576, 320, 96, 48);
-}
+    /* 960x540 기준 버튼 크기들
+    buttonWidth = 960 * 0.16 = 153
+    buttonHeight = 540 * 0.1 = 54
+    buttonSpacing = 540 * 0.05 = 27
+    totalHeight = (buttonHeight * 3) + (buttonSpacing * (2))
+                = (54 * 3) + (27 * 2) =  162 + 54 = 216
+    term = 54 + 27 = 71
+    */
 
-void TotalMenu::setPosition(MenuType type){
-    //창, 텍스트 크기 받아오기
-    int windowWidth, windowHeight, textWidth, textHeight;
-    SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-    TTF_SizeText(title.getFont(), "Naktris", &textWidth, &textHeight);
+    //버튼 생성
+    int buttonWidth = 960 * 0.2;
+    int buttonHeight = 540 * 0.13;
+    int buttonSpacing = 540 * 0.05;
 
-    //비율 조정
-    WidthRatio = 0.16; // 1/6
-    HeightRatio = 0.1; // 1/10
-    SpacingRatio = 0.05; // 1/20
-    const float buttonWidth = windowWidth / WidthRatio;
-    const float buttonHeight = windowHeight / HeightRatio;
-    const float buttonSpacing = windowHeight / SpacingRatio;
-
-    // 폰트 크기를 창 높이에 비례하여 계산
-    int fontSize = static_cast<int>(windowHeight * 0.05); // 폰트 크기는 창 높이의 5%
-    if (fontSize < 10) fontSize = 10; // 최소 폰트 크기 제한
-    if (fontSize > 100) fontSize = 100; // 최대 폰트 크기 제한
-    int titleSize = static_cast<int>(windowHeight * 0.07); // 제목크기는 창 높이의 7%
-    if (fontSize < 10) fontSize = 13; // 최소 폰트 크기 제한
-    if (fontSize > 100) fontSize = 120; // 최대 폰트 크기 제한
-
-    //위치할 좌표 계산
-    int startX = (windowWidth - buttonWidth) / 2;
+    int startX = (960 - buttonWidth) / 2;
     int totalHeight = (buttonHeight * 3) + (buttonSpacing * (2));
-    int startY = (windowHeight - totalHeight) / 2;
+    int startY = (540 - totalHeight) / 2 + (buttonHeight*0.5);
     int term = buttonHeight + buttonSpacing;
 
-    int titleX = (windowWidth - textWidth) / 2;
-    int titleY = startY-fontSize - (fontSize/2);
+    int fontSize = 25;
+    mainMenuButtons.emplace_back(rend, "Start_Game", startX, startY, buttonWidth, buttonHeight, fontSize);
+    mainMenuButtons.emplace_back(rend, "Setting", startX, startY + term, buttonWidth, buttonHeight, fontSize);
+    mainMenuButtons.emplace_back(rend, "Quit", startX, startY + term + term, buttonWidth, buttonHeight, fontSize);
+
+    //게임 이름
+    fontSize = 60;
+    title.initFont(rend, "font", fontSize);
+    SDL_Color textColor = {255, 255, 255, 255}; //흰색
+    title.textSetting("Naktris", textColor);
+    int titleWidth = title.getSurfaceInfo('w');
+    int titleHeight = title.getSurfaceInfo('h');
+    int titleX = (960 - titleWidth) / 2;
+    int titleY = ((540 - totalHeight) / 2) - (titleHeight);
     title.setPosition(titleX, titleY);
 
-    for(size_t i = 0; i<3; ++i){
-        mainMenuButtons[i].setPosition(startX, startY+(i*term));
-    }
+    //Made by
+    fontSize = 15;
+    madeBy.initFont(rend, "font", fontSize);
+    madeBy.textSetting("mady by nakge_hurt", textColor);
+    int madeWidth = madeBy.getSurfaceInfo('w');
+    int madeHeight = madeBy.getSurfaceInfo('h');
+    int madeX = 960 - madeWidth - 10;
+    int madeY = 540 - (madeHeight * 2);
+    madeBy.setPosition(madeX, madeY);
 }
 
-void TotalMenu::renderMainMenu(bool isWindowResized) {
+
+void TotalMenu::renderMainMenu() {
     //배경을 검은색으로 초기화
     SDL_SetRenderDrawColor(rend, 0, 0, 0, 255);
     SDL_RenderClear(rend);
 
-    // 게임 이름
-    int fontSize = 48;
-    //SDL_font title;
-    title.initFont(rend, "font", fontSize);
-    SDL_Color textColor = {255, 255, 255, 255};
-    title.textSetting("Naktris", textColor);
-    title.setPosition(535, 230);
-    title.render();
-    
-    if(isWindowResized){
-        setPosition(MAIN);
-    }
-
-    // Made by 텍스트
-    // font = TTF_OpenFont("src/assets/font.ttf", 16);
-    // if (font) {
-    //     SDL_Color textColor = {255, 255, 255, 255};
-    //     SDL_Surface* surface = TTF_RenderText_Solid(font, "Made by nakge_hurt", textColor);
-    //     SDL_Texture* texture = SDL_CreateTextureFromSurface(rend, surface);
-    //     SDL_Rect destRect = {10, 580, surface->w, surface->h};
-    //     SDL_RenderCopy(rend, texture, nullptr, &destRect);
-    //     SDL_FreeSurface(surface);
-    //     SDL_DestroyTexture(texture);
-    //     TTF_CloseFont(font);
-    // }
-
-    // 버튼 렌더링
-    for(size_t i = 0; i < mainMenuButtons.size(); ++i){
+    for(size_t i = 0; i < 3; ++i){
         mainMenuButtons[i].render();
     }
+    title.render();
+    madeBy.render();
 }
 
 // void TotalMenu::renderPauseMenu() {
@@ -110,10 +90,21 @@ void TotalMenu::renderMainMenu(bool isWindowResized) {
 //     // }
 // }
 
-void TotalMenu::render(bool isWindowResized) {
+void TotalMenu::render() {
+    int mouseX, mouseY;
+    uint32_t mouseState = SDL_GetMouseState(&mouseX, &mouseY);
     switch (currentMenu) {
         case MAIN:
-            renderMainMenu(isWindowResized);
+            renderMainMenu();
+            for(size_t i=0; i<3; ++i){
+                bool isMouse = mainMenuButtons[i].isMouseOver(mouseX, mouseY);
+                //마우스가 위에 올라가면 하이라이트 표시
+                mainMenuButtons[i].setHighlight(isMouse);
+                //버튼 클릭시.
+                if(mouseState && SDL_BUTTON(SDL_BUTTON_LEFT)&&isMouse){
+                    mainMenuButtons[i].setprint();
+                }
+            }
             break;
         case PAUSE:
             //renderPauseMenu();
