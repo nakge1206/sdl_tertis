@@ -1,5 +1,4 @@
-#ifndef PARTICLE_H
-#define PARTICLE_H
+#pragma once
 
 #include "../../definitions.h"
 #include <vector>
@@ -29,5 +28,3 @@ private:
     SDL_Renderer* renderer;
     std::vector<Particle> particles;
 };
-
-#endif

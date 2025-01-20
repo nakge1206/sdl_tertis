@@ -70,9 +70,8 @@ void Window::Run(){
 void Window::HandleEvents(){
     SDL_Event event;
     while(SDL_PollEvent(&event)){
-        if (event.type == SDL_QUIT) {
-            isRunning = false;
-        }
+        SDL_Input::getInstance().processEvent(event);
+        if (SDL_Input::getInstance().isQuit()) isRunning = false;
         if(event.type == SDL_WINDOWEVENT){
             if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
                 isWindowResized = true;

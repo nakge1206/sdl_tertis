@@ -92,7 +92,7 @@ void TotalMenu::renderMainMenu() {
 
 void TotalMenu::render() {
     int mouseX, mouseY;
-    uint32_t mouseState = SDL_GetMouseState(&mouseX, &mouseY);
+    SDL_GetMouseState(&mouseX, &mouseY);
     switch (currentMenu) {
         case MAIN:
             renderMainMenu();
@@ -101,8 +101,9 @@ void TotalMenu::render() {
                 //마우스가 위에 올라가면 하이라이트 표시
                 mainMenuButtons[i].setHighlight(isMouse);
                 //버튼 클릭시.
-                if(mouseState && SDL_BUTTON(SDL_BUTTON_LEFT)&&isMouse){
+                if(isMouse && SDL_Input::getInstance().isMouseButtonPressed(SDL_BUTTON_LEFT)){
                     mainMenuButtons[i].setprint();
+                    if(i == 2) SDL_Input::getInstance().createQuitEvent();
                 }
             }
             break;

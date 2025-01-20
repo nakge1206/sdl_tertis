@@ -5,6 +5,7 @@
 #include <vector>
 #include "MenuButton.h"
 #include "../sdl/SDL_font.h"
+#include "../sdl/SDL_Input.h"
 
 //todo.
 //main메뉴 잘 뜨고, 마우스 위치 및 클릭 확인

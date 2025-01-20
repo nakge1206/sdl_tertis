@@ -8,6 +8,7 @@ MenuButton::MenuButton(SDL_Renderer* rend, const std::string& text, int x, int y
     //나중에 이거 설정할 수 있게 바꾸면 될듯(현재는 기본 검은색, 하이라이트는 노란색)
     defaultColor.r=255; defaultColor.g=255; defaultColor.b=255; defaultColor.a=255; //검은색
     highlightColor.r=211; highlightColor.g=211; highlightColor.b=211; highlightColor.a=255; //노란색
+    buttonText.initFont(rend, "font", fontSize);
 }
 
 MenuButton::~MenuButton() {}
@@ -24,10 +25,7 @@ void MenuButton::render() {
 
     //글자 가운데 정렬
     SDL_Color textColor = {0, 0, 0, 255}; //검은색
-    SDL_font buttonText;
-    buttonText.initFont(rend, "font", fontSize);
     buttonText.textSetting(text, textColor);
-
     SDL_Rect textRect;
     textRect.w = buttonText.getSurfaceInfo('w');
     textRect.h = buttonText.getSurfaceInfo('h');

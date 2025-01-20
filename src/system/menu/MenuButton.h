@@ -1,5 +1,4 @@
-#ifndef MENU_BUTTON_H
-#define MENU_BUTTON_H
+#pragma once
 
 #include "../../definitions.h"
 #include "../sdl/SDL_font.h"
@@ -30,9 +29,8 @@ private:
     bool highlight;
     void (*onClick)();
     int fontSize;
+    SDL_font buttonText;
 
     SDL_Color defaultColor;
     SDL_Color highlightColor;
 };
-
-#endif

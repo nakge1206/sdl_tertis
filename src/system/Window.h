@@ -4,6 +4,7 @@
 #include "menu/MenuButton.h"
 #include "menu/Particle.h"
 #include "menu/TotalMenu.h"
+#include "sdl/SDL_Input.h"
 
 class Window { //초기 창 열기
 private:
