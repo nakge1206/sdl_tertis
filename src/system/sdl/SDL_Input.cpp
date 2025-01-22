@@ -7,7 +7,9 @@ SDL_Input& SDL_Input::getInstance() {
 }
 
 // 생성자
-SDL_Input::SDL_Input() {}
+SDL_Input::SDL_Input() :quitStates(false) {
+    a = 10;
+}
 
 // 소멸자
 SDL_Input::~SDL_Input() {}
@@ -54,4 +56,12 @@ bool SDL_Input::isKeyPressed(SDL_Scancode key) const {
 bool SDL_Input::isMouseButtonPressed(Uint8 button) const {
     std::unordered_map<Uint8, bool>::const_iterator it = mouseButtonStates.find(button);
     return it != mouseButtonStates.end() && it->second;
+}
+
+void SDL_Input::setalpha(int b){
+    a=b;
+}
+
+void SDL_Input::printalpha(){
+    std::cout << a << std::endl;
 }

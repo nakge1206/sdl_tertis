@@ -4,8 +4,14 @@
 const int FPS = 60;
 const int FRAME_DELAY = 1000/FPS;
 
-Window::Window()
-    : window(nullptr), rend(nullptr), isRunning(false), frameStart(0), frameTime(0), currentState(MAIN_MENU), menus(nullptr, nullptr), isWindowResized(false){
+#define LOGICAL_WIDTH 960
+#define LOGICAL_HEIGHT 540
+
+Window::Window(){
+    window = nullptr; rend = nullptr;
+    isRunning = false;
+    frameStart = 0; frameTime = 0;
+    currentState = MAIN; isPause = false;
 }
 
 Window::~Window(){
@@ -13,11 +19,10 @@ Window::~Window(){
 }
 
 bool Window::initSetting(const char* title, int width, int height){
-    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_GAMECONTROLLER) != 0) { //비디오, 타이머, 컨트롤러 설정
+    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_GAMECONTROLLER|SDL_INIT_EVENTS) != 0) { //비디오, 타이머, 컨트롤러 설정
         std::cerr << "SDL 초기설정 실패: " << SDL_GetError() << std::endl;
         return false;
     }
-    //이건 나중에 SDL_font로 따로 빼고싶음.
     if(TTF_Init() == -1){
         std::cerr << "폰트설정 실패: " <<SDL_GetError() << std::endl;
     }
@@ -42,39 +47,44 @@ bool Window::initSetting(const char* title, int width, int height){
     SDL_RenderSetLogicalSize(rend, LOGICAL_WIDTH, LOGICAL_HEIGHT);
 
     //메뉴창 설정 수정필요
-    menus = TotalMenu(rend, window);
-    //initMainMenu에서 세그멘테이션 오류뜸.
-    menus.initMainMenu();
-    //menus.initPauseMenu();
-    //menus.initSettingMenu();
+    mainMenu = MainMenu();
+    mainMenu.initMain(rend, window);
 
     isRunning = true;
     return true;
+
 }
 
 void Window::Run(){
     while(isRunning){
-        frameStart = SDL_GetTicks();
+        // frameStart = SDL_GetTicks();
 
         HandleEvents();
         Update();
         Render();
 
-        frameTime = SDL_GetTicks() - frameStart;
-        if(FRAME_DELAY > frameTime) {
-            SDL_Delay(FRAME_DELAY - frameTime);
-        }
+        // frameTime = SDL_GetTicks() - frameStart;
+        // if(FRAME_DELAY > frameTime) {
+        //     SDL_Delay(FRAME_DELAY - frameTime);
+        // }
     }
 }
 
 void Window::HandleEvents(){
+    SDL_Input& input = SDL_Input::getInstance();
     SDL_Event event;
     while(SDL_PollEvent(&event)){
-        SDL_Input::getInstance().processEvent(event);
-        if (SDL_Input::getInstance().isQuit()) isRunning = false;
+        input.processEvent(event);
+        if (input.isQuit()) isRunning = false;
+        if (input.isKeyPressed(SDL_SCANCODE_UP)) {
+            input.setalpha(5);
+            std::cout << "alpha is 5" <<std::endl;
+        }
+        if (input.isKeyPressed(SDL_SCANCODE_DOWN)) input.setalpha(15);
+        if(input.isKeyPressed(SDL_SCANCODE_E)) std::cout<<"main's click!" << std::endl;
         if(event.type == SDL_WINDOWEVENT){
             if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
-                isWindowResized = true;
+                // isWindowResized = true;
             }
         }
     }
@@ -83,7 +93,7 @@ void Window::HandleEvents(){
 void Window::Update(){
     //게임 상태 업데이트 코드 추가.
     switch (currentState) {
-        case MAIN_MENU:
+        case MAIN:
             // 메뉴 상태 업데이트 처리
             break;
         case GAME:
@@ -105,9 +115,8 @@ void Window::Render(){
 
     //상태에 따라 화면 출력 처리
     switch (currentState) {
-        case MAIN_MENU: {
-            menus.setMenu(menus.callType(0));
-            menus.render();
+        case MAIN: {
+            mainMenu.render();
             break;
         }
         case GAME: {

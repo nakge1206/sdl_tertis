@@ -1,8 +1,11 @@
-#include "definitions.h"
 #include "system/Window.h"
 
 #define FIELD_WIDTH 10 //가로 10줄
 #define FIELD_HEIGHT 20 //세로 20줄
+
+#define WIDTH 960
+#define HEIGHT 540
+#define game_version "1.0"
 
 int main(int argc, char* args[]){
     Window win;

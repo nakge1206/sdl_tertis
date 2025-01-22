@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../definitions.h"
-#include "menu/MenuButton.h"
-#include "menu/Particle.h"
-#include "menu/TotalMenu.h"
+#include <SDL2/SDL.h>
+#include <SDL_ttf.h>
+#include <iostream>
+#include "menu/MainMenu.h"
 #include "sdl/SDL_Input.h"
 
 class Window { //초기 창 열기
@@ -11,18 +11,18 @@ private:
     SDL_Window* window;
     SDL_Renderer* rend;
     bool isRunning;
-    bool isWindowResized;
 
     //게임 상태 및 현재 상태
-    enum GameState {
-        MAIN_MENU,
+    enum MainState {
+        MAIN,
         GAME,
         SETTINGS,
         QUIT
     };
-    GameState currentState;
+    MainState currentState;
+    bool isPause;
 
-    TotalMenu menus;
+    MainMenu mainMenu;
 
     //게임 내 프레임 관련
     uint32_t frameStart;
@@ -31,6 +31,7 @@ private:
     void HandleEvents();
     void Update();
     void Render();
+    
 public:
     Window(); //생성자
     ~Window(); //소멸자
