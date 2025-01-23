@@ -17,6 +17,16 @@ public:
     void initMain(SDL_Renderer* rend, SDL_Window* window); //메인메뉴 미리 정해두기
     void render(); //메인메뉴 렌더링
 
+    //키마 처리
+    void UpClick();
+    void DownClick();
+    void EnterClick();
+    void OnClick();
+
+    bool isQuit;
+    bool mainStart;
+    bool mainSetting;
+
 private:
     SDL_Renderer* rend;
     SDL_Window* window;
@@ -35,6 +45,7 @@ private:
     SDL_font title;
     SDL_font madeBy;
 
+    int mouseX, mouseY;
 
     //디버그용 변수
     bool testa;

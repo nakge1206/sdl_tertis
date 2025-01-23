@@ -7,14 +7,19 @@ const int FRAME_DELAY = 1000/FPS;
 #define LOGICAL_WIDTH 960
 #define LOGICAL_HEIGHT 540
 
+
 Window::Window(){
     window = nullptr; rend = nullptr;
     isRunning = false;
     frameStart = 0; frameTime = 0;
     currentState = MAIN; isPause = false;
+    input = SDL_Input::Instance();
 }
 
 Window::~Window(){
+    SDL_Input::Release();
+    input = NULL;
+
     Shutdown();
 }
 
@@ -57,43 +62,65 @@ bool Window::initSetting(const char* title, int width, int height){
 
 void Window::Run(){
     while(isRunning){
-        // frameStart = SDL_GetTicks();
+        frameStart = SDL_GetTicks();
 
         HandleEvents();
         Update();
         Render();
 
-        // frameTime = SDL_GetTicks() - frameStart;
-        // if(FRAME_DELAY > frameTime) {
-        //     SDL_Delay(FRAME_DELAY - frameTime);
-        // }
+        frameTime = SDL_GetTicks() - frameStart;
+        if(FRAME_DELAY > frameTime) {
+            SDL_Delay(FRAME_DELAY - frameTime);
+        }
     }
 }
 
 void Window::HandleEvents(){
-    SDL_Input& input = SDL_Input::getInstance();
     SDL_Event event;
-    while(SDL_PollEvent(&event)){
-        input.processEvent(event);
-        if (input.isQuit()) isRunning = false;
-        if (input.isKeyPressed(SDL_SCANCODE_UP)) {
-            input.setalpha(5);
-            std::cout << "alpha is 5" <<std::endl;
+    SDL_PollEvent(&event);
+    if(event.type == SDL_QUIT) isRunning = false;
+    if(mainMenu.isQuit == true) isRunning = false;
+
+    input->Update();
+
+    if(input->KeyPressed(SDL_SCANCODE_DOWN)) printf("DOWN is click \n");
+
+    if(currentState == MAIN){
+        if(input->KeyPressed(SDL_SCANCODE_LEFT)) printf("LEFT is click \n");
+        if(input->MouseButtonPressed(SDL_Input::left)){
+            mainMenu.OnClick();
         }
-        if (input.isKeyPressed(SDL_SCANCODE_DOWN)) input.setalpha(15);
-        if(input.isKeyPressed(SDL_SCANCODE_E)) std::cout<<"main's click!" << std::endl;
-        if(event.type == SDL_WINDOWEVENT){
-            if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
-                // isWindowResized = true;
-            }
+        if(input->KeyPressed(SDL_SCANCODE_UP)){
+            mainMenu.UpClick();
+        }
+        if(input->KeyPressed(SDL_SCANCODE_DOWN)){
+            mainMenu.DownClick();
+        }
+        if(input->KeyPressed(SDL_SCANCODE_RETURN)){
+            mainMenu.EnterClick();
         }
     }
+
+    if(currentState == GAME){
+        if(input->KeyPressed(SDL_SCANCODE_L)){
+            printf("L is click\n");
+            currentState = MAIN;
+        }
+    }
+    
+
+    input->UpdatePrevInput();
 }
 
 void Window::Update(){
     //게임 상태 업데이트 코드 추가.
     switch (currentState) {
         case MAIN:
+            if(mainMenu.mainStart) {
+                printf("gamemode change main->game\n");
+                currentState = GAME;
+            }
+            if(mainMenu.mainSetting) printf("gamemode change main->setting\n");
             // 메뉴 상태 업데이트 처리
             break;
         case GAME:
@@ -116,6 +143,7 @@ void Window::Render(){
     //상태에 따라 화면 출력 처리
     switch (currentState) {
         case MAIN: {
+            mainMenu.mainSetting=false; mainMenu.mainStart=false;
             mainMenu.render();
             break;
         }

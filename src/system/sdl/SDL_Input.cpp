@@ -1,67 +1,125 @@
 #include "SDL_Input.h"
 
-// Singleton 인스턴스 가져오기
-SDL_Input& SDL_Input::getInstance() {
-    static SDL_Input instance;
-    return instance;
+SDL_Input* SDL_Input::sInstance = NULL;
+
+SDL_Input* SDL_Input::Instance() {
+    if(sInstance == NULL){
+        sInstance = new SDL_Input();
+    }
+    return sInstance;
 }
 
-// 생성자
-SDL_Input::SDL_Input() :quitStates(false) {
-    a = 10;
+void SDL_Input::Release(){
+    delete sInstance;
+    sInstance = NULL;
 }
 
-// 소멸자
-SDL_Input::~SDL_Input() {}
+SDL_Input::SDL_Input(){
+    mKeyboardState = SDL_GetKeyboardState(&mKeyLength);
+    mPrevKeyboardState = new uint8_t[mKeyLength];
+    memcpy(mPrevKeyboardState, mKeyboardState, mKeyLength);
+}
 
-// 이벤트 처리
-void SDL_Input::processEvent(const SDL_Event& event) {
-    switch (event.type) {
-    case SDL_QUIT:
-        quitStates = true;
-    case SDL_KEYDOWN:
-        keyStates[event.key.keysym.scancode] = true;
+SDL_Input::~SDL_Input(){
+    delete[] mPrevKeyboardState;
+    mPrevKeyboardState = NULL;
+}
+
+bool SDL_Input::KeyDown(SDL_Scancode scanCode){
+    return mKeyboardState[scanCode];
+}
+
+bool SDL_Input::KeyPressed(SDL_Scancode scanCode){
+    return !mPrevKeyboardState[scanCode] && mKeyboardState[scanCode];
+}
+
+bool SDL_Input::KeyReleased(SDL_Scancode scanCode){
+    return mPrevKeyboardState[scanCode] && !mKeyboardState[scanCode];
+}
+
+bool SDL_Input::MouseButtonDown(MOUSE_BUTTONS button){
+    uint32_t mask = 0;
+    switch (button)
+    {
+    case left:
+        mask = SDL_BUTTON_LMASK;
         break;
-    case SDL_KEYUP:
-        keyStates[event.key.keysym.scancode] = false;
+    case right:
+        mask = SDL_BUTTON_RMASK;
         break;
-    case SDL_MOUSEBUTTONDOWN:
-        mouseButtonStates[event.button.button] = true;
+    case middle:
+        mask = SDL_BUTTON_MMASK;
         break;
-    case SDL_MOUSEBUTTONUP:
-        mouseButtonStates[event.button.button] = false;
+    case back:
+        mask = SDL_BUTTON_X1MASK;
+        break;
+    case forward:
+        mask = SDL_BUTTON_X2MASK;
         break;
     default:
         break;
     }
+
+    return (mMouseState & mask);
 }
 
-void SDL_Input:: createQuitEvent(){
-    SDL_Event event;
-    event.type = SDL_QUIT;
-    SDL_Input::getInstance().processEvent(event);
+bool SDL_Input::MouseButtonPressed(MOUSE_BUTTONS button){
+    uint32_t mask = 0;
+    switch (button)
+    {
+    case left:
+        mask = SDL_BUTTON_LMASK;
+        break;
+    case right:
+        mask = SDL_BUTTON_RMASK;
+        break;
+    case middle:
+        mask = SDL_BUTTON_MMASK;
+        break;
+    case back:
+        mask = SDL_BUTTON_X1MASK;
+        break;
+    case forward:
+        mask = SDL_BUTTON_X2MASK;
+        break;
+    default:
+        break;
+    }
+
+    return !(mPrevMouseState & mask) && (mMouseState & mask);
 }
 
-bool SDL_Input::isQuit(){
-    return quitStates;
+bool SDL_Input::MouseButtonReleased(MOUSE_BUTTONS button){
+    uint32_t mask = 0;
+    switch (button)
+    {
+    case left:
+        mask = SDL_BUTTON_LMASK;
+        break;
+    case right:
+        mask = SDL_BUTTON_RMASK;
+        break;
+    case middle:
+        mask = SDL_BUTTON_MMASK;
+        break;
+    case back:
+        mask = SDL_BUTTON_X1MASK;
+        break;
+    case forward:
+        mask = SDL_BUTTON_X2MASK;
+        break;
+    default:
+        break;
+    }
+
+    return (mPrevMouseState & mask) && !(mMouseState & mask);
 }
 
-// 키 상태 확인
-bool SDL_Input::isKeyPressed(SDL_Scancode key) const {
-    std::unordered_map<SDL_Scancode, bool>::const_iterator it = keyStates.find(key);
-    return it != keyStates.end() && it->second;
+void SDL_Input::Update(){
+    mMouseState = SDL_GetMouseState(&mMouseXPos, &mMouseYPos);
 }
 
-// 마우스 버튼 상태 확인
-bool SDL_Input::isMouseButtonPressed(Uint8 button) const {
-    std::unordered_map<Uint8, bool>::const_iterator it = mouseButtonStates.find(button);
-    return it != mouseButtonStates.end() && it->second;
-}
-
-void SDL_Input::setalpha(int b){
-    a=b;
-}
-
-void SDL_Input::printalpha(){
-    std::cout << a << std::endl;
+void SDL_Input::UpdatePrevInput(){
+    memcpy(mPrevKeyboardState, mKeyboardState, mKeyLength);
+    mPrevMouseState = mMouseState; 
 }

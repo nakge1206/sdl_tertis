@@ -11,6 +11,7 @@ private:
     SDL_Window* window;
     SDL_Renderer* rend;
     bool isRunning;
+    SDL_Input* input;
 
     //게임 상태 및 현재 상태
     enum MainState {
@@ -31,7 +32,7 @@ private:
     void HandleEvents();
     void Update();
     void Render();
-    
+
 public:
     Window(); //생성자
     ~Window(); //소멸자

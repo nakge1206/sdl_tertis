@@ -1,7 +1,12 @@
 #include "MainMenu.h"
 
+
 MainMenu::MainMenu() : rend(nullptr), window(nullptr), mainState(NOTHING){
     testa = true;
+    isQuit = false;
+
+    mainStart = false;
+    mainSetting = false;
 }
 
 MainMenu::~MainMenu() {
@@ -29,13 +34,6 @@ void MainMenu::initMain(SDL_Renderer* rend, SDL_Window* window) {
     mainButtons[0].initButton(rend, "Start_Game", startX, startY, buttonWidth, buttonHeight, fontSize);
     mainButtons[1].initButton(rend, "Setting", startX, startY + term, buttonWidth, buttonHeight, fontSize);
     mainButtons[2].initButton(rend, "Quit", startX, startY + term + term, buttonWidth, buttonHeight, fontSize);
-
-    //시험용
-    // SDL_Color textcc = {0, 255, 255, 255}; //푸른색
-    // mainButtons[1].setTextColor("Setting", textcc);
-    // textcc.r = 255; textcc.g = 0; textcc.b = 127; textcc.a = 255; //자홍색
-    // mainButtons[1].setDefaultColor(textcc);
-    // mainButtons[0].setPosition(0, 0);
 
     //게임 이름
     fontSize = 60;
@@ -70,51 +68,120 @@ void MainMenu::render() {
     title.render();
     madeBy.render();
 
-    SDL_Input& input = SDL_Input::getInstance();
-    SDL_Event event;
-    if(input.isKeyPressed(SDL_SCANCODE_A)) std::cout<<"click!" << std::endl;
-    //화살표로 상태고정기능
-    switch (mainState) {
-        case NOTHING:
-            if(input.isKeyPressed(SDL_SCANCODE_DOWN)) mainState = MAIN_START;
-            break;
-        case MAIN_START:
-            mainButtons[0].setHighlight(true);
-            if(input.isKeyPressed(SDL_SCANCODE_KP_ENTER)) mainButtons[0].setprint();
-            if(input.isKeyPressed(SDL_SCANCODE_UP)) mainState = NOTHING;
-            else if(input.isKeyPressed(SDL_SCANCODE_DOWN)) mainState = MAIN_SETTING;
-            break;
-        case MAIN_SETTING:
-            mainButtons[1].setHighlight(true);
-            if(input.isKeyPressed(SDL_SCANCODE_KP_ENTER)) mainButtons[1].setprint();
-            if(input.isKeyPressed(SDL_SCANCODE_UP)) mainState = MAIN_START;
-            else if(input.isKeyPressed(SDL_SCANCODE_DOWN)) mainState = MAIN_QUIT;
-            break;
-        case MAIN_QUIT:
-            mainButtons[2].setHighlight(true);
-            if(input.isKeyPressed(SDL_SCANCODE_KP_ENTER)) mainButtons[2].setprint();
-            if(input.isKeyPressed(SDL_SCANCODE_UP)) mainState = MAIN_SETTING;
-            break;
-        default:
-            break;
-    }
-    
+    mainStart = false;
+    mainSetting = false;
 
-    int mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
     for(size_t i=0; i<3; ++i){
-        bool isMouse = mainButtons[i].isMouseOver(mouseX, mouseY);
-        //마우스가 위에 올라가면 하이라이트 표시
-        mainButtons[i].setHighlight(isMouse);
-        //버튼 클릭시.
-        if(isMouse && input.isMouseButtonPressed(SDL_BUTTON_LEFT)){
-            mainButtons[i].setprint();
-            if(i == 2) input.createQuitEvent();
-            if(testa) input.printalpha();
+        SDL_GetMouseState(&mouseX, &mouseY);
+        if(mainButtons[0].isMouseOver(mouseX, mouseY)){
+            mainState = MAIN_START;
+        } else if(mainButtons[1].isMouseOver(mouseX, mouseY)){
+            mainState = MAIN_SETTING;
+        } else if(mainButtons[2].isMouseOver(mouseX, mouseY)){
+            mainState = MAIN_QUIT;
         }
+    }
+
+    switch (mainState){
+    case NOTHING:
+        mainButtons[0].setHighlight(false);
+        mainButtons[1].setHighlight(false);
+        mainButtons[2].setHighlight(false);
+        break;
+    case MAIN_START:
+        mainButtons[0].setHighlight(true);
+        mainButtons[1].setHighlight(false);
+        mainButtons[2].setHighlight(false);
+        break;
+    case MAIN_SETTING:
+        mainButtons[0].setHighlight(false);
+        mainButtons[1].setHighlight(true);
+        mainButtons[2].setHighlight(false);
+        break;
+    case MAIN_QUIT:
+        mainButtons[0].setHighlight(false);
+        mainButtons[1].setHighlight(false);
+        mainButtons[2].setHighlight(true);
+        break;
+    default:
+        break;
     }
 }
 
+void MainMenu::UpClick(){
+    switch (mainState){
+    case NOTHING:
+        break;
+    case MAIN_START:
+        break;
+    case MAIN_SETTING:
+        mainState = MAIN_START;
+        break;
+    case MAIN_QUIT:
+        mainState = MAIN_SETTING;
+        break;
+    default:
+        break;
+    }
+}
+
+void MainMenu::DownClick(){
+    switch (mainState){
+    case NOTHING:
+        mainState = MAIN_START;
+        break;
+    case MAIN_START:
+        mainState = MAIN_SETTING;
+        break;
+    case MAIN_SETTING:
+        mainState = MAIN_QUIT;
+        break;
+    case MAIN_QUIT:
+        break;
+    default:
+        break;
+    }
+}
+
+void MainMenu::EnterClick(){
+    switch (mainState){
+    case NOTHING:
+        break;
+    case MAIN_START:
+        mainButtons[0].setprint();
+        mainStart = true;
+        break;
+    case MAIN_SETTING:
+        mainButtons[1].setprint();
+        mainSetting = true;
+        break;
+    case MAIN_QUIT:
+        mainButtons[2].setprint();
+        isQuit = true;
+        break;
+    default:
+        break;
+    }
+}
+
+void MainMenu::OnClick(){
+    SDL_GetMouseState(&mouseX, &mouseY);
+    bool isMouse0 = mainButtons[0].isMouseOver(mouseX, mouseY);
+    bool isMouse1 = mainButtons[1].isMouseOver(mouseX, mouseY);
+    bool isMouse2 = mainButtons[2].isMouseOver(mouseX, mouseY);
+    if(isMouse0){
+        mainButtons[0].setprint();
+        mainStart = true;
+    }
+    if(isMouse1){
+        mainButtons[1].setprint();
+        mainSetting = true;
+    }
+    if(isMouse2){
+        mainButtons[2].setprint();
+        isQuit = true;
+    }
+}
 
 // void TotalMenu::initPauseMenu() {
 //     pauseMenuButtons.clear();
