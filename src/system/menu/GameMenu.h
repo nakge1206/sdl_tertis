@@ -9,12 +9,12 @@
 #include "../sdl/SDL_font.h"
 #include "../sdl/SDL_Input.h"
 
-class MainMenu {
+class GameMenu {
 public:
-    MainMenu();
-    ~MainMenu();
+    GameMenu();
+    ~GameMenu();
 
-    void initMain(SDL_Renderer* rend, SDL_Window* window); //메인메뉴 미리 정해두기
+    void initGameMenu(SDL_Renderer* rend, SDL_Window* window);
     void run();
 
     //키마 처리
@@ -23,27 +23,29 @@ public:
     void EnterClick();
     void OnClick();
 
-    bool isQuit;
-    bool mainStart;
-    bool mainSetting;
+    bool isBack;
 
 private:
     SDL_Renderer* rend;
     SDL_Window* window;
 
     //상태 고정하기 위함
-    enum MAINMENUSTATE {
+    enum GAMEMENU {
         NOTHING,
-        MAIN_START,
-        MAIN_SETTING,
-        MAIN_QUIT
+        SINGLE40,
+        SINGLE1M,
+        SINGLEAI,
+        MULTI
     };
-    MAINMENUSTATE mainState;
+    GAMEMENU gameMenuState;
 
     //메인메뉴 구현에 필요한 변수들
     std::vector<CreateButton> mainButtons;
-    SDL_font title;
-    SDL_font madeBy;
+    CreateButton back;
+    SDL_font guide_40;
+    SDL_font guide_1m;
+    SDL_font guide_ai;
+    SDL_font guide_multi;
 
     int mouseX, mouseY;
 

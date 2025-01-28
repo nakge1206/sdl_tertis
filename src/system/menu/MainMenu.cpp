@@ -2,7 +2,6 @@
 
 
 MainMenu::MainMenu() : rend(nullptr), window(nullptr), mainState(NOTHING){
-    testa = true;
     isQuit = false;
 
     mainStart = false;
@@ -34,6 +33,15 @@ void MainMenu::initMain(SDL_Renderer* rend, SDL_Window* window) {
     mainButtons[0].initButton(rend, "Start_Game", startX, startY, buttonWidth, buttonHeight, fontSize);
     mainButtons[1].initButton(rend, "Setting", startX, startY + term, buttonWidth, buttonHeight, fontSize);
     mainButtons[2].initButton(rend, "Quit", startX, startY + term + term, buttonWidth, buttonHeight, fontSize);
+    /*버튼 색상 및 하이라이트 색상 바꿀 수 있음
+    SDL_Color basic = {r, g, b, a};
+    SDL_Color highlight = {r, g, b, a};
+    
+    for(size_t i=0; i<3; ++i){
+        mainButton[i].setDefaultColor(basic);
+        mainButton[i].setHighlightColor(highlight);
+    }
+    */
 
     //게임 이름
     fontSize = 60;
@@ -68,11 +76,11 @@ void MainMenu::render() {
     title.render();
     madeBy.render();
 
-    mainStart = false;
-    mainSetting = false;
+}
 
+void MainMenu::handelEvent(){
+    SDL_GetMouseState(&mouseX, &mouseY);
     for(size_t i=0; i<3; ++i){
-        SDL_GetMouseState(&mouseX, &mouseY);
         if(mainButtons[0].isMouseOver(mouseX, mouseY)){
             mainState = MAIN_START;
         } else if(mainButtons[1].isMouseOver(mouseX, mouseY)){
@@ -108,6 +116,12 @@ void MainMenu::render() {
     }
 }
 
+void MainMenu::run(){
+    handelEvent();
+    render();
+}
+
+//Window에서 HandelEnvent에 따른 처리 함수
 void MainMenu::UpClick(){
     switch (mainState){
     case NOTHING:
@@ -182,38 +196,3 @@ void MainMenu::OnClick(){
         isQuit = true;
     }
 }
-
-// void TotalMenu::initPauseMenu() {
-//     pauseMenuButtons.clear();
-
-//     int windowWidth, windowHeight;
-//     SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-
-//     const int buttonWidth = windowWidth / 4;
-//     const int buttonHeight = windowHeight / 10;
-//     const int buttonSpacing = windowHeight / 20;
-
-//     int startY = (windowHeight - (3 * buttonHeight + 2 * buttonSpacing)) / 2;
-
-//     pauseMenuButtons.emplace_back(rend, "Continue", (windowWidth - buttonWidth) / 2, startY, buttonWidth, buttonHeight);
-//     pauseMenuButtons.emplace_back(rend, "Settings", (windowWidth - buttonWidth) / 2, startY + buttonHeight + buttonSpacing, buttonWidth, buttonHeight);
-//     pauseMenuButtons.emplace_back(rend, "Exit Game", (windowWidth - buttonWidth) / 2, startY + 2 * (buttonHeight + buttonSpacing), buttonWidth, buttonHeight);
-// }
-
-// void TotalMenu::initSettingMenu() {
-//     settingMenuButtons.clear();
-
-//     int windowWidth, windowHeight;
-//     SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-
-//     const int labelWidth = windowWidth / 3;
-//     const int buttonWidth = windowWidth / 6;
-//     const int buttonHeight = windowHeight / 10;
-//     const int buttonSpacing = windowHeight / 20;
-
-//     int startY = (windowHeight - (3 * buttonHeight + 2 * buttonSpacing)) / 2;
-
-//     settingMenuButtons.emplace_back(rend, "Toggle Option 1", labelWidth + buttonWidth, startY, buttonWidth, buttonHeight);
-//     settingMenuButtons.emplace_back(rend, "Toggle Option 2", labelWidth + buttonWidth, startY + buttonHeight + buttonSpacing, buttonWidth, buttonHeight);
-//     settingMenuButtons.emplace_back(rend, "Toggle Option 3", labelWidth + buttonWidth, startY + 2 * (buttonHeight + buttonSpacing), buttonWidth, buttonHeight);
-// }

@@ -33,10 +33,11 @@ bool Window::initSetting(const char* title, int width, int height){
     }
 
     window = SDL_CreateWindow( //윈도우 생성
-                        title , //윈도우 이름
-                        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, //초기 마우스 위치
-                        width, height, //창 크기
-                        SDL_WINDOW_RESIZABLE); //속성(다중 가능)
+                        title //윈도우 이름
+                        , SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED //초기 마우스 위치
+                        , width, height //창 크기
+                        , 0);
+                        //, SDL_WINDOW_RESIZABLE); //속성(다중 가능)
     if(!window){
         std::cerr << "윈도우 생성 실패" << SDL_GetError() << std::endl;
         SDL_Quit();
@@ -51,9 +52,14 @@ bool Window::initSetting(const char* title, int width, int height){
     }
     SDL_RenderSetLogicalSize(rend, LOGICAL_WIDTH, LOGICAL_HEIGHT);
 
-    //메뉴창 설정 수정필요
     mainMenu = MainMenu();
     mainMenu.initMain(rend, window);
+
+    gameMenu = GameMenu();
+    gameMenu.initGameMenu(rend, window);
+
+    waiting = Waiting();
+    waiting.init(rend, window);
 
     isRunning = true;
     return true;
@@ -83,10 +89,7 @@ void Window::HandleEvents(){
 
     input->Update();
 
-    if(input->KeyPressed(SDL_SCANCODE_DOWN)) printf("DOWN is click \n");
-
     if(currentState == MAIN){
-        if(input->KeyPressed(SDL_SCANCODE_LEFT)) printf("LEFT is click \n");
         if(input->MouseButtonPressed(SDL_Input::left)){
             mainMenu.OnClick();
         }
@@ -102,9 +105,26 @@ void Window::HandleEvents(){
     }
 
     if(currentState == GAME){
-        if(input->KeyPressed(SDL_SCANCODE_L)){
-            printf("L is click\n");
-            currentState = MAIN;
+        if(input->MouseButtonPressed(SDL_Input::left)){
+            gameMenu.OnClick();
+        }
+        if(input->KeyPressed(SDL_SCANCODE_UP)){
+            gameMenu.UpClick();
+        }
+        if(input->KeyPressed(SDL_SCANCODE_DOWN)){
+            gameMenu.DownClick();
+        }
+        if(input->KeyPressed(SDL_SCANCODE_RETURN)){
+            gameMenu.EnterClick();
+        }
+        if(input->KeyPressed(SDL_SCANCODE_B) || gameMenu.isBack){ //뒤로가기
+            gameMenu.isBack = false;
+            mainMenu.mainStart = false;
+        }
+    }
+    if(currentState == SETTINGS){
+        if(input->KeyPressed(SDL_SCANCODE_B)){
+            mainMenu.mainSetting = false;
         }
     }
     
@@ -115,18 +135,29 @@ void Window::HandleEvents(){
 void Window::Update(){
     //게임 상태 업데이트 코드 추가.
     switch (currentState) {
-        case MAIN:
-            if(mainMenu.mainStart) {
+        case MAIN: //mainStart = false, mainSetting = false
+            if(mainMenu.mainStart && !mainMenu.mainSetting){ //그 중에 mainStart만 true
                 printf("gamemode change main->game\n");
                 currentState = GAME;
             }
-            if(mainMenu.mainSetting) printf("gamemode change main->setting\n");
+            if(!mainMenu.mainStart && mainMenu.mainSetting){ //그 중에 mainSetting만 true
+                printf("gamemode change main->setting\n");
+                currentState = SETTINGS;
+            }
             // 메뉴 상태 업데이트 처리
             break;
-        case GAME:
+        case GAME: //mainStart = true, mainSetting = false
+            if(!mainMenu.mainStart && !mainMenu.mainSetting){ //둘다 false가 되면 main창으로 나가야함.
+                printf("gamemode change game->main\n");
+                currentState = MAIN;
+            }
             // 게임 상태 업데이트 처리
             break;
         case SETTINGS:
+            if(!mainMenu.mainStart && !mainMenu.mainSetting){
+                printf("gamemode change setting->main\n");
+                currentState = MAIN;
+            }
             // 설정 상태 업데이트 처리
             break;
         case QUIT:
@@ -144,24 +175,15 @@ void Window::Render(){
     switch (currentState) {
         case MAIN: {
             mainMenu.mainSetting=false; mainMenu.mainStart=false;
-            mainMenu.render();
+            mainMenu.run();
             break;
         }
         case GAME: {
-            //나중에 게임 시작 함수 추가해야함.
-
-            //디버그:초록색
-            SDL_SetRenderDrawColor(rend, 0, 255, 0, 255);
-            SDL_Rect gameRect = {150, 150, 300, 200};
-            SDL_RenderFillRect(rend, &gameRect);
+            gameMenu.run();
             break;
         }
         case SETTINGS: {
-            //menus.setMenu(menus.callType(2));
-            //디버그:노란색
-            // SDL_SetRenderDrawColor(rend, 255, 255, 0, 255);
-            // SDL_Rect settingsRect = {200, 200, 200, 100};
-            // SDL_RenderFillRect(rend, &settingsRect);
+            waiting.render();
             break;
         }
         case QUIT:

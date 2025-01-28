@@ -4,6 +4,8 @@
 #include <SDL_ttf.h>
 #include <iostream>
 #include "menu/MainMenu.h"
+#include "menu/GameMenu.h"
+#include "menu/Waiting.h"
 #include "sdl/SDL_Input.h"
 
 class Window { //초기 창 열기
@@ -24,6 +26,8 @@ private:
     bool isPause;
 
     MainMenu mainMenu;
+    GameMenu gameMenu;
+    Waiting waiting;
 
     //게임 내 프레임 관련
     uint32_t frameStart;
