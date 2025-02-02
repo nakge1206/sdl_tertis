@@ -4,128 +4,65 @@
 #include <vector>
 #include <iostream>
 
+#include "SDL_Input.h"
+#include "Piece.h"
+
 
 #define FIELD_WIDTH 10 //가로 10줄
 #define FIELD_HEIGHT 20 //세로 20줄
 
 #define WIDTH 960
 #define HEIGHT 540
-#define TILE_SIZE 32
+#define TILE_SIZE 22
 
 #define game_version "1.0"
+
+SDL_Input* input = SDL_Input::Instance();
 
 uint32_t frameStart;
 int frameTime;
 const int FPS = 60;
 const int FRAME_DELAY = 1000/FPS;
 
-// int frameCount, timeFPS, lastFrame, fps;
-bool left, right, up, down;
 bool isRunning;
 
 SDL_Window* window;
 SDL_Renderer* rend;
-SDL_Rect rect;
 
-struct block{
-    SDL_Color color;
-    bool active;
-};
-
-struct shape{
-    SDL_Color color;
-    bool matrix[4][4];
-    double x, y;
-    int size;
-};
-
-shape blocks[7] = {
-    {{255, 165, 0}, //L Mino
-    {{0, 0, 1, 0}
-    ,{1, 1, 1, 0}
-    ,{0, 0, 0, 0}
-    ,{0, 0, 0, 0}}
-    , 5, 4, 3}
-    ,{{255, 0, 0}, //Z Mino
-    {{1, 1, 0, 0}
-    ,{0, 1, 1, 0}
-    ,{0, 0, 0, 0}
-    ,{0, 0, 0, 0}}
-    , 5, 4, 3}
-    ,{{253, 255, 255}, //I Mino
-    {{1, 1, 1, 1}
-    ,{0, 0, 0, 0}
-    ,{0, 0, 0, 0}
-    ,{0, 0, 0, 0}}
-    , 5, 4, 4}
-    ,{{0, 0, 255}, //J Mino
-    {{1, 0, 0, 0}
-    ,{1, 1, 1, 0}
-    ,{0, 0, 0, 0}
-    ,{0, 0, 0, 0}}
-    , 5, 4, 3}
-    ,{{255, 255, 0}, //O Mino
-    {{1, 1, 0, 0}
-    ,{1, 1, 0, 0}
-    ,{0, 0, 0, 0}
-    ,{0, 0, 0, 0}}
-    , 5, 4, 2}
-    ,{{0, 0, 255}, //S Mino
-    {{0, 1, 1, 0}
-    ,{1, 1, 0, 0}
-    ,{0, 0, 0, 0}
-    ,{0, 0, 0, 0}}
-    , 5, 4, 3}
-    , {{128, 0, 128}, //T Mino
-    {{0, 1, 0, 0}
-    ,{1, 1, 1, 0}
-    ,{0, 0, 0, 0}
-    ,{0, 0, 0, 0}}
-    , 5, 4, 3}
-    };
-
-shape cur;
+//for debug
+int typeNum = 0;
+Vector2Int startPos(4,5);
+Piece myPiece(typeNum, startPos);
 
 
-shape reverseCols(shape s){
-    shape tmp = s;
-    for(int i=0; i<s.size; i++){
-        for(int j=0; i<s.size/2; j++){
-            bool t = s.matrix[i][j];
-            tmp.matrix[i][j] = s.matrix[i][s.size-j-i];
-            tmp.matrix[i][s.size-j-1] = t;
-        }
-    }
-    return tmp;
-}
+//숨겨진 배경까지 해서 10x40의 행렬이 필요함.
+std::vector< std::vector<bool> > Grid(10, std::vector<bool>(40));
 
-shape transepose(shape s) {
-    shape tmp = s;
-    for(int i=0; i<s.size; i++){
-        for(int j=0; i<s.size; j++){
-            tmp.matrix[i][j] = s.matrix[j][i];
-        }
-    }
-    return tmp;
-}
+/*
+Grid.size()는 전체의 갯수, 그러니까 10을 반환
+Grid[0].size()는 차원안에의 갯수, 그러니까 40을반환
+*/
+void grid_draw(){
+    int startX = 44;
+    int startY = 470;
+    for(int i=0; i<Grid.size(); i++){ //가로(10)
+        for(int j=0; j<Grid[0].size()/2; j++){ //세로(40)보이는건20
+            if(!Grid[i][j]){
+                SDL_Rect temp;
+                temp.x = startX;
+                temp.y = startY;
+                startY -= TILE_SIZE;
 
-void rotate(){
-    cur = reverseCols(transepose(cur));
-}
- 
-void draw(shape s){
-    for(int i=0; i<s.size; i++){
-        for(int j=0; j<s.size; j++){
-            if(s.matrix[i][j]){
-                //여기서 s.x, s.y의 기준은 게임 시작 시 그리드의 좌표.
-                rect.x = (s.x+j)*TILE_SIZE; 
-                rect.y = (s.y+i)*TILE_SIZE;
-                SDL_SetRenderDrawColor(rend, s.color.r, s.color.g, s.color.b, 255);
-                SDL_RenderFillRect(rend, &rect);
-                SDL_SetRenderDrawColor(rend, 219, 219, 219, 255);
-                SDL_RenderDrawRect(rend, &rect);
+                temp.w = TILE_SIZE;
+                temp.h = TILE_SIZE;
+                SDL_SetRenderDrawColor(rend, 0, 0, 0, 255); //검은색
+                SDL_RenderFillRect(rend, &temp);
+                SDL_SetRenderDrawColor(rend, 155, 155, 155, 255); //흰색
+                SDL_RenderDrawRect(rend, &temp);
             }
         }
+        startY = 470;
+        startX+=TILE_SIZE;
     }
 }
 
@@ -133,6 +70,41 @@ void HandleEvents(){
     SDL_Event event;
     SDL_PollEvent(&event);
     if(event.type == SDL_QUIT) isRunning = false;
+    input->Update();
+
+    if(input->KeyPressed(SDL_SCANCODE_UP)){
+        std::cout << "UP" << std::endl;
+        myPiece.position.y++;
+    }
+    if(input->KeyPressed(SDL_SCANCODE_DOWN)){
+        std::cout << "DOWN" << std::endl;
+        myPiece.position.y--;
+    }
+    if(input->KeyPressed(SDL_SCANCODE_LEFT)){
+        std::cout << "LEFT" << std::endl;
+        myPiece.Move('L');
+    }
+    if(input->KeyPressed(SDL_SCANCODE_RIGHT)){
+        std::cout << "RIGHT" << std::endl;
+        myPiece.Move('R');
+    }
+    if(input->KeyPressed(SDL_SCANCODE_X)){
+        std::cout << "X" << std::endl;
+        myPiece.Rotate(true);
+    }
+    if(input->KeyPressed(SDL_SCANCODE_Z)){
+        std::cout << "Z" << std::endl;
+        myPiece.Rotate(false);
+    }
+    if(input->KeyPressed(SDL_SCANCODE_C)){
+        std::cout << "C" << std::endl;
+        if(typeNum==6){
+            typeNum = 0;
+        }else typeNum++;
+        myPiece.ChangeType(typeNum);
+    }
+
+    input->UpdatePrevInput();
 }
 
 void Update(){
@@ -144,7 +116,9 @@ void Render(){
     SDL_SetRenderDrawColor(rend, 0, 0, 0, 255);
     SDL_RenderClear(rend);
 
-    draw(cur);
+    grid_draw();
+
+    myPiece.Render(rend, TILE_SIZE);
 
     // 결과 화면에 출력
     SDL_RenderPresent(rend);
@@ -183,10 +157,8 @@ int main(int argc, char* args[]){
     }
 
     isRunning = true;
-    cur = blocks[6];
 
-    rect.w = TILE_SIZE;
-    rect.h = TILE_SIZE;
+    std::cout << "Grid.size() : " << Grid.size() << std::endl << "Grid[0].size() : " << Grid[0].size() << std::endl;
 
     while(isRunning){
         frameStart = SDL_GetTicks();
