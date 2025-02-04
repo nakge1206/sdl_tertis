@@ -9,34 +9,34 @@ O_OFFSET_DATA(offsetData::Instance()->getO_OFFSET_DATA()){
     //블록 종류에 따라 타일 초기화
     //처음 넣는게 센터(0,0), x(+:right / -:left) y(+:up / -:down)
     switch (type) {
-        case TTYPE_I: // I
+        case TTYPE_I: // I:하늘색
         {
-            SDL_Color Icolor = {253, 255, 255, 255};
+            SDL_Color Icolor = {135, 206, 235, 255};
             tiles.push_back(Tile(0, 0, Icolor));
             tiles.push_back(Tile(-1, 0, Icolor));
             tiles.push_back(Tile(1, 0, Icolor));
             tiles.push_back(Tile(2, 0, Icolor));
             break;
         }
-        case TTYPE_J: // J
+        case TTYPE_J: // J:파란색
         {
-            SDL_Color Jcolor = {0, 0, 255, 255};
+            SDL_Color Jcolor = {65, 105, 225, 255};
             tiles.push_back(Tile(0, 0, Jcolor));
             tiles.push_back(Tile(-1, 0, Jcolor));
             tiles.push_back(Tile(-1, 1, Jcolor));
             tiles.push_back(Tile(1, 0, Jcolor));
             break;
         }
-        case TTYPE_L: // L
+        case TTYPE_L: // L:주황색
         {
-            SDL_Color Lcolor = {255, 165, 0, 255};
+            SDL_Color Lcolor = {255, 127, 0, 255};
             tiles.push_back(Tile(0, 0, Lcolor));
             tiles.push_back(Tile(-1, 0, Lcolor));
             tiles.push_back(Tile(1, 0, Lcolor));
             tiles.push_back(Tile(1, 1, Lcolor));
             break;
         }
-        case TTYPE_O: // O
+        case TTYPE_O: // O:노랑색
         {
             SDL_Color Ocolor = {255, 255, 0, 255};
             tiles.push_back(Tile(0, 0, Ocolor));
@@ -45,25 +45,25 @@ O_OFFSET_DATA(offsetData::Instance()->getO_OFFSET_DATA()){
             tiles.push_back(Tile(1, 1, Ocolor));
             break;
         }
-        case TTYPE_S: // S
+        case TTYPE_S: // S:연두색
         {
-            SDL_Color Scolor = {0, 0, 255, 255};
+            SDL_Color Scolor = {129, 193, 71, 255};
             tiles.push_back(Tile(0, 0, Scolor));
             tiles.push_back(Tile(-1, 0, Scolor));
             tiles.push_back(Tile(0, 1, Scolor));
             tiles.push_back(Tile(1, 1, Scolor));
             break;
         }
-        case TTYPE_T: // T
+        case TTYPE_T: // T:보라색
         {
-            SDL_Color Tcolor = {128, 0, 128, 255};
+            SDL_Color Tcolor = {204, 102, 255, 255};
             tiles.push_back(Tile(0, 0, Tcolor));
             tiles.push_back(Tile(-1, 0, Tcolor));
             tiles.push_back(Tile(0, 1, Tcolor));
             tiles.push_back(Tile(1, 0, Tcolor));
             break;
         }
-        case TTYPE_Z: // Z
+        case TTYPE_Z: // Z:빨간색
         {
             SDL_Color Zcolor = {255, 0, 0, 255};
             tiles.push_back(Tile(0, 0, Zcolor));
