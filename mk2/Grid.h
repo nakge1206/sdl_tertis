@@ -1,14 +1,18 @@
 #pragma once
 
-struct Grid
+#include "TetroMino.h"
+
+struct grid
 {
-    /* data */
+    int x, y;
+    int type;
 };
 
 
-class Grid{
+class Field{
 public:
 
 private:
+    std::vector< std::vector<grid> > Grid;
 
-}
+};

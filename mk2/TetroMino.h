@@ -1,6 +1,9 @@
+#pragma once
+
 #include <iostream>
 #include <vector>
 #include <SDL2/SDL.h>
+#include <map>
 
 #include "Tile.h"
 #include "vector2.h"
@@ -10,10 +13,16 @@ enum MinoType{
     TTYPE_I, TTYPE_O, TTYPE_Z, TTYPE_S, TTYPE_J, TTYPE_L, TTYPE_T
 };
 
-class TetriMino {
+struct MinoColor{
+    uint8_t r, g, b, a;
+};
+
+extern MinoColor TypeColorArray[7];
+
+class TetroMino {
 public:
     //타입과 센터좌표를 입력으로 받는 생성자
-    TetriMino(MinoType _type, vector2 _position);
+    TetroMino(MinoType _type, vector2 _position);
 
     void Rotate(bool clockwise, bool shouldOffset = true);
     void Move_LR(char m);

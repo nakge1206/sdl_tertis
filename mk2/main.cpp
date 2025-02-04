@@ -5,7 +5,8 @@
 #include <iostream>
 
 #include "SDL_Input.h"
-#include "TetriMino.h"
+#include "TetroMino.h"
+#include "Grid.h"
 
 
 #define FIELD_WIDTH 10 //가로 10줄
@@ -16,6 +17,18 @@
 #define TILE_SIZE 22
 
 #define game_version "1.0"
+
+/*
+todo:
+1. Grid 모듈화 하기
+2. mino 시작위치 고정시키기
+3. Timing 다루기 : Timer 구현
+    Gravity - 자동Drop, 1G는 1frame(=1/60)당 1칸 떨어지는 단위, 보통은 1초에 한칸 떨어지는 1/60G가 기본값
+    Are - lockDown 후 다음 생성까지 delay되는 시간
+    DAS(Delayed Auto Shift) - 왼, 오, 아래 꾹 누를때 자동 이동될 때까지 걸리는 시간
+    ARR(Automatic Repeated Rate) - 좌우로 자동이동될 때 한 칸 이동하는 시간
+    SDF(Soft Drop Factor) - 아래로 자동 이동될 때 걸리는 시간. 보통은 Gravity의 배속
+*/
 
 SDL_Input* input = SDL_Input::Instance();
 
@@ -32,7 +45,7 @@ SDL_Renderer* rend;
 //for debug
 MinoType typeNum = MinoType::TTYPE_I;
 vector2 startPos(4,5);
-TetriMino myPiece(typeNum, startPos);
+TetroMino myPiece(typeNum, startPos);
 
 
 //숨겨진 배경까지 해서 10x40의 행렬이 필요함.
