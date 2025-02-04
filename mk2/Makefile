@@ -1,13 +1,13 @@
 .PHONY: run Main clean
 
-#소스파일 경로
-SRC = ./main.cpp ./SDL_Input.cpp ./vector2.cpp
+#소스파일 경로 (.cpp)
+SRC = ./main.cpp ./SDL_Input.cpp ./Tile.cpp ./offsetData.cpp ./TetriMino.cpp
 #HDR = ./src/sdl/menuSample.h ./src/sdl/window_menu.h
 #HDR = ./src/Menu/MenuButton.h ./src/sdl/Particle.h
 OBJ = main #결과물 이름
 
 #컴파일러, 플래그
-CXX = g++
+CXX = g++ #-std=c++11
 
 CXXFLAGS = -g -I/Library/Frameworks/SDL2.framework/Headers \
 		-I/Library/Frameworks/SDL2_ttf.framework/Headers \

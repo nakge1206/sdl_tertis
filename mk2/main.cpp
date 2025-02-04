@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "SDL_Input.h"
-#include "Piece.h"
+#include "TetriMino.h"
 
 
 #define FIELD_WIDTH 10 //가로 10줄
@@ -30,9 +30,9 @@ SDL_Window* window;
 SDL_Renderer* rend;
 
 //for debug
-int typeNum = 0;
-Vector2Int startPos(4,5);
-Piece myPiece(typeNum, startPos);
+MinoType typeNum = MinoType::TTYPE_I;
+vector2 startPos(4,5);
+TetriMino myPiece(typeNum, startPos);
 
 
 //숨겨진 배경까지 해서 10x40의 행렬이 필요함.
@@ -74,19 +74,19 @@ void HandleEvents(){
 
     if(input->KeyPressed(SDL_SCANCODE_UP)){
         std::cout << "UP" << std::endl;
-        myPiece.position.y++;
+        myPiece.Move_UD('U');
     }
     if(input->KeyPressed(SDL_SCANCODE_DOWN)){
         std::cout << "DOWN" << std::endl;
-        myPiece.position.y--;
+        myPiece.Move_UD('D');
     }
     if(input->KeyPressed(SDL_SCANCODE_LEFT)){
         std::cout << "LEFT" << std::endl;
-        myPiece.Move('L');
+        myPiece.Move_LR('L');
     }
     if(input->KeyPressed(SDL_SCANCODE_RIGHT)){
         std::cout << "RIGHT" << std::endl;
-        myPiece.Move('R');
+        myPiece.Move_LR('R');
     }
     if(input->KeyPressed(SDL_SCANCODE_X)){
         std::cout << "X" << std::endl;
@@ -98,9 +98,7 @@ void HandleEvents(){
     }
     if(input->KeyPressed(SDL_SCANCODE_C)){
         std::cout << "C" << std::endl;
-        if(typeNum==6){
-            typeNum = 0;
-        }else typeNum++;
+        typeNum = static_cast<MinoType>( (typeNum + 1) % 7);
         myPiece.ChangeType(typeNum);
     }
 

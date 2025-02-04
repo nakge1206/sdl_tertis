@@ -1,11 +1,8 @@
 #pragma once
 
-#include <vector>
-
-class Vector2Int{
-public:
-    Vector2Int(int _x=0, int _y=0) : x(_x), y(_y) {}
+struct vector2{
     int x;
     int y;
-private:
+    vector2(){}
+    vector2(int _x, int _y):x(_x), y(_y) {}
 };

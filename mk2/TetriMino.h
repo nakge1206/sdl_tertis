@@ -1,0 +1,45 @@
+#include <iostream>
+#include <vector>
+#include <SDL2/SDL.h>
+
+#include "Tile.h"
+#include "vector2.h"
+#include "offsetData.h"
+
+enum MinoType{
+    TTYPE_I, TTYPE_O, TTYPE_Z, TTYPE_S, TTYPE_J, TTYPE_L, TTYPE_T
+};
+
+class TetriMino {
+public:
+    //타입과 센터좌표를 입력으로 받는 생성자
+    TetriMino(MinoType _type, vector2 _position);
+
+    void Rotate(bool clockwise, bool shouldOffset = true);
+    void Move_LR(char m);
+
+    void Render(SDL_Renderer* renderer, int tileSize);
+
+    //디버그용 : 다양한 타입의 미노로 실험
+    void ChangeType(MinoType newType);
+    void Move_UD(char m);
+private:
+    std::vector<Tile> tiles;
+    MinoType type;
+    int rotation; //현재 회전 상태 (0, 1, 2, 3)
+    vector2 position; //각 테트리미노의 센터 좌표(절대 좌표)
+
+    //OffsetData는 참조로 받아옴.
+    const std::vector< std::vector<vector2> >& JLSTZ_OFFSET_DATA;
+    const std::vector< std::vector<vector2> >& I_OFFSET_DATA;
+    const std::vector< std::vector<vector2> >& O_OFFSET_DATA;
+
+    bool Offset(int oldRotIndex, int newRotIndex); //오프셋표 확인
+
+    //센터의 Grid좌표에서, offset의 상태좌표를 다 더해줘야함.
+    bool CanMovePiece(vector2 offset);
+
+    int Mod(int x, int m);
+
+    bool WillMove_LR(char m);
+};
