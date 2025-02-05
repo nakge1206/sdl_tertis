@@ -5,24 +5,15 @@
 #include <iostream>
 
 #include "SDL_Input.h"
-#include "TetroMino.h"
-#include "Grid.h"
-
-
-#define FIELD_WIDTH 10 //가로 10줄
-#define FIELD_HEIGHT 20 //세로 20줄
+#include "game.h"
 
 #define WIDTH 960
 #define HEIGHT 540
-#define TILE_SIZE 22
-
 #define game_version "1.0"
 
 /*
 todo:
-1. Grid 모듈화 하기
-2. mino 시작위치 고정시키기
-3. Timing 다루기 : Timer 구현
+Timing 다루기 : Timer 구현
     Gravity - 자동Drop, 1G는 1frame(=1/60)당 1칸 떨어지는 단위, 보통은 1초에 한칸 떨어지는 1/60G가 기본값
     Are - lockDown 후 다음 생성까지 delay되는 시간
     DAS(Delayed Auto Shift) - 왼, 오, 아래 꾹 누를때 자동 이동될 때까지 걸리는 시간
@@ -42,42 +33,8 @@ bool isRunning;
 SDL_Window* window;
 SDL_Renderer* rend;
 
-//for debug
-MinoType typeNum = MinoType::TTYPE_I;
-vector2 startPos(4,5);
-TetroMino myPiece(typeNum, startPos);
+game Game;
 
-
-//숨겨진 배경까지 해서 10x40의 행렬이 필요함.
-std::vector< std::vector<bool> > Grid(10, std::vector<bool>(40));
-
-/*
-Grid.size()는 전체의 갯수, 그러니까 10을 반환
-Grid[0].size()는 차원안에의 갯수, 그러니까 40을반환
-*/
-void grid_draw(){
-    int startX = 44;
-    int startY = 470;
-    for(int i=0; i<Grid.size(); i++){ //가로(10)
-        for(int j=0; j<Grid[0].size()/2; j++){ //세로(40)보이는건20
-            if(!Grid[i][j]){
-                SDL_Rect temp;
-                temp.x = startX;
-                temp.y = startY;
-                startY -= TILE_SIZE;
-
-                temp.w = TILE_SIZE;
-                temp.h = TILE_SIZE;
-                SDL_SetRenderDrawColor(rend, 0, 0, 0, 255); //검은색
-                SDL_RenderFillRect(rend, &temp);
-                SDL_SetRenderDrawColor(rend, 155, 155, 155, 255); //흰색
-                SDL_RenderDrawRect(rend, &temp);
-            }
-        }
-        startY = 470;
-        startX+=TILE_SIZE;
-    }
-}
 
 void HandleEvents(){
     SDL_Event event;
@@ -85,51 +42,22 @@ void HandleEvents(){
     if(event.type == SDL_QUIT) isRunning = false;
     input->Update();
 
-    if(input->KeyPressed(SDL_SCANCODE_UP)){
-        std::cout << "UP" << std::endl;
-        myPiece.Move_UD('U');
-    }
-    if(input->KeyPressed(SDL_SCANCODE_DOWN)){
-        std::cout << "DOWN" << std::endl;
-        myPiece.Move_UD('D');
-    }
-    if(input->KeyPressed(SDL_SCANCODE_LEFT)){
-        std::cout << "LEFT" << std::endl;
-        myPiece.Move_LR('L');
-    }
-    if(input->KeyPressed(SDL_SCANCODE_RIGHT)){
-        std::cout << "RIGHT" << std::endl;
-        myPiece.Move_LR('R');
-    }
-    if(input->KeyPressed(SDL_SCANCODE_X)){
-        std::cout << "X" << std::endl;
-        myPiece.Rotate(true);
-    }
-    if(input->KeyPressed(SDL_SCANCODE_Z)){
-        std::cout << "Z" << std::endl;
-        myPiece.Rotate(false);
-    }
-    if(input->KeyPressed(SDL_SCANCODE_C)){
-        std::cout << "C" << std::endl;
-        typeNum = static_cast<MinoType>( (typeNum + 1) % 7);
-        myPiece.ChangeType(typeNum);
+    if(Game.isGameRunning()){
+        Game.handleEvent();
     }
 
     input->UpdatePrevInput();
 }
 
 void Update(){
-
+    Game.tick();
 }
 
 void Render(){
-    //화면 검은색으로 초기화
     SDL_SetRenderDrawColor(rend, 0, 0, 0, 255);
     SDL_RenderClear(rend);
 
-    grid_draw();
-
-    myPiece.Render(rend, TILE_SIZE);
+    Game.render(rend);
 
     // 결과 화면에 출력
     SDL_RenderPresent(rend);
@@ -168,8 +96,7 @@ int main(int argc, char* args[]){
     }
 
     isRunning = true;
-
-    std::cout << "Grid.size() : " << Grid.size() << std::endl << "Grid[0].size() : " << Grid[0].size() << std::endl;
+    Game.start();
 
     while(isRunning){
         frameStart = SDL_GetTicks();

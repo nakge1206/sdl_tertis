@@ -1,21 +1,12 @@
 #include "TetroMino.h"
 
-MinoColor TypeColorArray[7] = {
-    {135, 206, 235, 255}, // TTYPE_I:하늘색
-    {255, 255, 0, 255},   // TTYPE_O:노랑색
-    {255, 0, 0, 255},     // TTYPE_Z:빨간색
-    {129, 193, 71, 255},  // TTYPE_S:연두색
-    {65, 105, 225, 255},  // TTYPE_J:파란색
-    {255, 127, 0, 255},  // TTYPE_L:주황색
-    {204, 102, 255, 255}   // TTYPE_T:보라색
-};
-
 //타입과 센터좌표를 입력으로 받는 생성자
 TetroMino::TetroMino(MinoType _type, vector2 _position)
 : type(_type), rotation(0), position(_position),
 JLSTZ_OFFSET_DATA(offsetData::Instance()->getJLSTZ_OFFSET_DATA()),
 I_OFFSET_DATA(offsetData::Instance()->getI_OFFSET_DATA()),
-O_OFFSET_DATA(offsetData::Instance()->getO_OFFSET_DATA()){
+O_OFFSET_DATA(offsetData::Instance()->getO_OFFSET_DATA()),
+FieldData(Field::Instance()){
     //블록 종류에 따라 타일 초기화
     //처음 넣는게 센터(0,0), x(+:right / -:left) y(+:up / -:down)
     SDL_Color typeColor;
@@ -108,6 +99,51 @@ O_OFFSET_DATA(offsetData::Instance()->getO_OFFSET_DATA()){
     }
 }
 
+void TetroMino::lock(){
+    vector2 lockPos = position;
+    std::vector<Tile> currentTiles = tiles; 
+    for (Tile& tile : currentTiles) {
+        tile.relativePos.x += lockPos.x;
+        tile.relativePos.y += lockPos.y;
+        FieldData->FieldLock(tile.relativePos, static_cast<int>(type));
+    }
+}
+
+void TetroMino::Move(char m){
+    if (WillMove(m)) {
+        if(m=='L'){ //Left
+            position.x--;
+        }else if(m=='R'){ //Right
+            position.x++;
+        }else if(m=='D'){ //Down
+            position.y--;
+        }
+    }
+}
+bool TetroMino::WillMove(char m){
+    vector2 nextPosition = position;
+    if(m=='L'){
+        nextPosition.x--;
+    }else if(m=='R'){
+        nextPosition.x++;
+    }else if(m=='D'){
+        nextPosition.y--;
+    }
+
+    std::vector<Tile> currentTiles = tiles; 
+    for (Tile& tile : currentTiles) {
+        tile.relativePos.x += nextPosition.x;
+        tile.relativePos.y += nextPosition.y;
+    }
+    for (const Tile& tile : currentTiles) {
+        if(!FieldData->isMoveAble(tile.relativePos)){
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void TetroMino::Rotate(bool clockwise, bool shouldOffset) {
     if(type == TTYPE_O) return; //O mino면 그대로
     int oldRotationIndex = rotation;
@@ -131,41 +167,6 @@ void TetroMino::Rotate(bool clockwise, bool shouldOffset) {
         Rotate(!clockwise, false);
     }
 }
-
-void TetroMino::Move_LR(char m){
-    // 1. 이동 가능 여부 확인
-    if (WillMove_LR(m)) {
-        // 2. 이동 가능할 경우 블록 실제 이동
-        if(m=='L'){ //Left
-            position.x--;
-        }else if(m=='R'){ //Right
-            position.x++;
-        }
-    }
-}
-bool TetroMino::WillMove_LR(char m){
-    vector2 nextPosition = position;
-    if(m=='L'){
-        nextPosition.x--;
-    }else if(m=='R'){
-        nextPosition.x++;
-    }
-
-    std::vector<Tile> currentTiles = tiles; 
-    for (Tile& tile : currentTiles) {
-        tile.relativePos.x += nextPosition.x;
-        tile.relativePos.y += nextPosition.y;
-    }
-
-    for (const Tile& tile : currentTiles) {
-        if (tile.relativePos.x < 0 || tile.relativePos.x >= 10 || tile.relativePos.y < 0) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 bool TetroMino::Offset(int oldRotIndex, int newRotIndex) {
     vector2 offsetVal1, offsetVal2, endOffset;
 
@@ -194,18 +195,18 @@ bool TetroMino::Offset(int oldRotIndex, int newRotIndex) {
 
     return movePossible;
 }
-
 bool TetroMino::CanMovePiece(vector2 offset) {
     vector2 tmpPos;
     tmpPos.x = position.x + offset.x;
     tmpPos.y = position.y + offset.y;
 
-    //바뀐 센터로부터의 Mino들이 조건에 다 부합하는지 확인해야함.
+    //바뀐 센터로부터의 Mino들이 조건에 다 부합하는지 확인
     std::vector<Tile> nextTiles = tiles;
     for (const Tile& tile : nextTiles) {
-        //현재는 벽에 부딪히는거만 확인함.
-        //todo: Grid 구현 후, 고정된 미노들과 충돌감지 부분 추가해야함.
-        if (tmpPos.x + tile.relativePos.x < 0 ||tmpPos.x + tile.relativePos.x >= 10 ||tmpPos.y+ tile.relativePos.y < 0) {
+        vector2 nextTilePos(tmpPos);
+        nextTilePos.x += tile.relativePos.x;
+        nextTilePos.y += tile.relativePos.y;
+        if (!FieldData->isMoveAble(nextTilePos)) {
             return false;
         }
     }
@@ -219,15 +220,13 @@ int TetroMino::Mod(int x, int m){
     return (x % m + m) % m;
 }
 
-void TetroMino::Render(SDL_Renderer* renderer, int tileSize) {
+void TetroMino::Render(SDL_Renderer* renderer) {
     for (Tile& tile : tiles) {
-        int startX = 44;
-        int startY = 470;
         Tile tileToDraw = tile;
-        tileToDraw.relativePos.x = startX + (position.x * tileSize) + (tile.relativePos.x * tileSize);
-        tileToDraw.relativePos.y = startY - (position.y * tileSize) - (tile.relativePos.y * tileSize);
+        tileToDraw.relativePos.x = STARTX + ((position.x-1) * TILE_SIZE) + (tile.relativePos.x * TILE_SIZE);
+        tileToDraw.relativePos.y = STARTY - ((position.y-1) * TILE_SIZE) - (tile.relativePos.y * TILE_SIZE);
 
-        tileToDraw.Render(renderer, tileSize);
+        tileToDraw.Render(renderer, TILE_SIZE);
     }
 }
 
@@ -250,6 +249,7 @@ void TetroMino::ChangeType(MinoType newType){
             tiles.push_back(Tile(-1, 0, typeColor));
             tiles.push_back(Tile(1, 0, typeColor));
             tiles.push_back(Tile(2, 0, typeColor));
+            rotation = 0;
             break;
         }
         case TTYPE_O: // O:노랑색
@@ -262,6 +262,7 @@ void TetroMino::ChangeType(MinoType newType){
             tiles.push_back(Tile(1, 0, typeColor));
             tiles.push_back(Tile(0, 1, typeColor));
             tiles.push_back(Tile(1, 1, typeColor));
+            rotation = 0;
             break;
         }
         case TTYPE_Z: // Z:빨간색
@@ -274,6 +275,7 @@ void TetroMino::ChangeType(MinoType newType){
             tiles.push_back(Tile(1, 0, typeColor));
             tiles.push_back(Tile(0, 1, typeColor));
             tiles.push_back(Tile(-1, 1, typeColor));
+            rotation = 0;
             break;
         }
         case TTYPE_S: // S:연두색
@@ -286,6 +288,7 @@ void TetroMino::ChangeType(MinoType newType){
             tiles.push_back(Tile(-1, 0, typeColor));
             tiles.push_back(Tile(0, 1, typeColor));
             tiles.push_back(Tile(1, 1, typeColor));
+            rotation = 0;
             break;
         }
         case TTYPE_J: // J:파란색
@@ -298,6 +301,7 @@ void TetroMino::ChangeType(MinoType newType){
             tiles.push_back(Tile(-1, 0, typeColor));
             tiles.push_back(Tile(-1, 1, typeColor));
             tiles.push_back(Tile(1, 0, typeColor));
+            rotation = 0;
             break;
         }
         case TTYPE_L: // L:주황색
@@ -310,6 +314,7 @@ void TetroMino::ChangeType(MinoType newType){
             tiles.push_back(Tile(-1, 0, typeColor));
             tiles.push_back(Tile(1, 0, typeColor));
             tiles.push_back(Tile(1, 1, typeColor));
+            rotation = 0;
             break;
         }
         
@@ -323,6 +328,7 @@ void TetroMino::ChangeType(MinoType newType){
             tiles.push_back(Tile(-1, 0, typeColor));
             tiles.push_back(Tile(0, 1, typeColor));
             tiles.push_back(Tile(1, 0, typeColor));
+            rotation = 0;
             break;
         }
     }

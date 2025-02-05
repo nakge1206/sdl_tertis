@@ -1,7 +1,9 @@
 .PHONY: run Main clean
 
 #소스파일 경로 (.cpp)
-SRC = ./main.cpp ./SDL_Input.cpp ./Tile.cpp ./offsetData.cpp ./TetroMino.cpp
+SRC = ./main.cpp ./SDL_Input.cpp ./game.cpp ./Timer.cpp\
+	./Field.cpp \
+	./offsetData.cpp ./TetroMino.cpp ./Tile.cpp
 #HDR = ./src/sdl/menuSample.h ./src/sdl/window_menu.h
 #HDR = ./src/Menu/MenuButton.h ./src/sdl/Particle.h
 OBJ = main #결과물 이름
