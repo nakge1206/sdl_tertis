@@ -1,11 +1,6 @@
 #pragma once
 
-#include <iostream>
-#include <vector>
-#include <SDL2/SDL.h>
-
 #include "Tile.h"
-#include "vector2.h"
 #include "offsetData.h"
 #include "Field.h"
 

@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../../definitions.h"
 #include "../sdl/SDL_font.h"
-#include <string>
 
 class CreateButton {
 public:

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <SDL2/SDL.h>
-#include <SDL_ttf.h>
-#include <iostream>
 #include "menu/MainMenu.h"
 #include "menu/GameMenu.h"
 #include "menu/Waiting.h"

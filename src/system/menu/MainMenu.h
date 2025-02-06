@@ -1,12 +1,9 @@
 #pragma once
 
-#include <SDL2/SDL.h>
-#include <SDL_ttf.h>
-#include <iostream>
-#include <string>
+
 #include <vector>
+
 #include "../sdl/CreateButton.h"
-#include "../sdl/SDL_font.h"
 #include "../sdl/SDL_Input.h"
 
 class MainMenu {

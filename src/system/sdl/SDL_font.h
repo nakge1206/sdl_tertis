@@ -1,7 +1,9 @@
 #pragma once
-#include "../../definitions.h"
+
 #include <SDL2/SDL.h>
+#include <SDL_ttf.h>
 #include <string>
+#include <iostream>
 
 class SDL_font {
 public:

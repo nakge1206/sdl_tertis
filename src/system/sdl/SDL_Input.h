@@ -1,8 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL.h>
-#include <string.h>
-#include <iostream>
+#include <iostream> //uint32_t
 
 class SDL_Input{
 

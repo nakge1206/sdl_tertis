@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../sdl/SDL_font.h"
-#include <SDL2/SDL.h>
 
 class Waiting {
 public:
