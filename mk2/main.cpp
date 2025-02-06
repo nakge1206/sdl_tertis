@@ -11,16 +11,6 @@
 #define HEIGHT 540
 #define game_version "1.0"
 
-/*
-todo:
-Timing 다루기 : Timer 구현
-    Gravity - 자동Drop, 1G는 1frame(=1/60)당 1칸 떨어지는 단위, 보통은 1초에 한칸 떨어지는 1/60G가 기본값
-    Are - lockDown 후 다음 생성까지 delay되는 시간
-    DAS(Delayed Auto Shift) - 왼, 오, 아래 꾹 누를때 자동 이동될 때까지 걸리는 시간
-    ARR(Automatic Repeated Rate) - 좌우로 자동이동될 때 한 칸 이동하는 시간
-    SDF(Soft Drop Factor) - 아래로 자동 이동될 때 걸리는 시간. 보통은 Gravity의 배속
-*/
-
 SDL_Input* input = SDL_Input::Instance();
 
 uint32_t frameStart;
@@ -45,12 +35,19 @@ void HandleEvents(){
     if(Game.isGameRunning()){
         Game.handleEvent();
     }
+    if(!Game.isGameRunning()){
+        if(input->KeyPressed(SDL_SCANCODE_BACKSPACE)){
+            std::cout << "backspace" << std::endl;
+            Game.start();
+        }
+    }
 
     input->UpdatePrevInput();
 }
 
 void Update(){
     Game.tick();
+    Game.moveUpdate();
 }
 
 void Render(){

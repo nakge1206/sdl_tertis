@@ -42,7 +42,10 @@ public:
 
     void FieldLock(vector2 lockPos, int newType);
 
+    void FieldReset();
+
     //디버그용
+    void setting_DT();
     void FieldPrint_blocked(){
         for(int j=41; j>=0; j--){
             for(int i=0; i<12; i++){

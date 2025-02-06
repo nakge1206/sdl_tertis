@@ -11,18 +11,21 @@ public:
     game();
     ~game();
 
-    
-
     void handleEvent();
     void render(SDL_Renderer* rend);
     void start();
     void tick();
+
+    void moveUpdate();
 
     //getter
     bool isGameRunning();
 
 private:
     bool GameRunning;
+
+    Field* playField;
+    SDL_Input* input;
 
     //블럭이 내려가는거 구현하는 타이머
     Timer downTimer;
@@ -31,10 +34,17 @@ private:
 
     //땅바닥에 멈췄을때 돌아가는 타이머
     Timer lockDelayTimer;
-    u_int32_t lockDelay;
+    uint32_t lockDelay; //기본값은 500 = 0.5초 지나면 Lock됨.
 
-    Field* playField;
-    SDL_Input* input;
+    //DAS(Delayed Auto Shift) 구현
+    Timer DAS_Timer;
+    bool DAS_DOWN;
+    bool DAS_LEFT;
+    bool DAS_RIGHT;
+    uint32_t DAS_Delay;
+
+    //디버그용
     int bagNum;
     std::vector<TetroMino> tempBag;
+    void resetBag();
 };

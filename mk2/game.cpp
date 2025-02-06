@@ -3,19 +3,20 @@
 game::game():GameRunning(false){
     input = SDL_Input::Instance();
     playField = Field::Instance();
+    //gravity
     gravitySum = 0.0;
     fallInterval = 1000.0;
-    lockDelay = 500;
+    //lock
+    lockDelay = 800;
+    //DAS
+    DAS_Delay = 200;
+    DAS_DOWN = false;
+    DAS_LEFT = false;
+    DAS_RIGHT = false;
 
     //디버그
-    vector2 createPos(5,21);
-    tempBag.push_back(TetroMino(TTYPE_I, createPos));
-    tempBag.push_back(TetroMino(TTYPE_J, createPos));
-    tempBag.push_back(TetroMino(TTYPE_L, createPos));
-    tempBag.push_back(TetroMino(TTYPE_O, createPos));
-    tempBag.push_back(TetroMino(TTYPE_S, createPos));
-    tempBag.push_back(TetroMino(TTYPE_T, createPos));
-    tempBag.push_back(TetroMino(TTYPE_Z, createPos));
+    //todo: 7-bag 구현
+    resetBag();
     bagNum = 0;
 }
 game::~game(){
@@ -39,11 +40,16 @@ void game::tick(){
         double speed = 1 * Level;
         gravitySum += speed * elapsed;
         if(gravitySum >= fallInterval){
-            tempBag[bagNum].Move('D');
-            //todo: lock부분 고쳐야함
             if(!tempBag[bagNum].WillMove('D')){
-                tempBag[bagNum].lock();
+                if(lockDelayTimer.isStart()){
+                    if(lockDelayTimer.getTicks()>=lockDelay){
+                        tempBag[bagNum].lock();
+                    }
+                }else {
+                    lockDelayTimer.start();
+                }
             }
+            tempBag[bagNum].Move('D');
 
             gravitySum = 0;
             downTimer.reset();
@@ -54,20 +60,49 @@ void game::tick(){
 void game::handleEvent(){
     if(input->KeyPressed(SDL_SCANCODE_UP)){
         std::cout << "UP" << std::endl;
-        // tempBag[bagNum].Move_UD('U');
+        tempBag[bagNum].Rotate(true);
     }
     if(input->KeyPressed(SDL_SCANCODE_DOWN)){
-        std::cout << "DOWN" << std::endl;
-        // tempBag[bagNum].Move_UD('D');
+        if(!DAS_DOWN){
+            DAS_DOWN=true;
+            DAS_Timer.start();
+            lockDelayTimer.reset();
+            tempBag[bagNum].Move('D');
+        }
+    }
+    if(input->KeyReleased(SDL_SCANCODE_DOWN)){
+        if(DAS_DOWN){
+            DAS_DOWN=false;
+        }
     }
     if(input->KeyPressed(SDL_SCANCODE_LEFT)){
-        std::cout << "LEFT" << std::endl;
-        tempBag[bagNum].Move('L');
+        if(!DAS_LEFT){
+            DAS_LEFT=true;
+            DAS_Timer.start();
+            lockDelayTimer.reset();
+            tempBag[bagNum].Move('L');
+        }
     }
+    if(input->KeyReleased(SDL_SCANCODE_LEFT)){
+        if(DAS_LEFT){
+            DAS_LEFT=false;
+        }
+    }
+
     if(input->KeyPressed(SDL_SCANCODE_RIGHT)){
-        std::cout << "RIGHT" << std::endl;
-        tempBag[bagNum].Move('R');
+        if(!DAS_RIGHT){
+            DAS_RIGHT=true;
+            DAS_Timer.start();
+            lockDelayTimer.reset();
+            tempBag[bagNum].Move('R');
+        }
     }
+    if(input->KeyReleased(SDL_SCANCODE_RIGHT)){
+        if(DAS_RIGHT){
+            DAS_RIGHT=false;
+        }
+    }
+
     if(input->KeyPressed(SDL_SCANCODE_X)){
         std::cout << "X" << std::endl;
         tempBag[bagNum].Rotate(true);
@@ -78,7 +113,24 @@ void game::handleEvent(){
     }
     if(input->KeyPressed(SDL_SCANCODE_C)){
         std::cout << "C" << std::endl;
-        bagNum++; if(bagNum == 7) bagNum = 0;
+        //현재는 미노만 변경하고 있음
+        //todo: Hold구현
+        bagNum++; if(bagNum == 7){
+            bagNum = 0;
+            resetBag();
+        }
+    }
+
+    if(input->KeyPressed(SDL_SCANCODE_ESCAPE)){
+        std::cout << "esc" << std::endl;
+        GameRunning = false;
+    }
+    
+    if(input->KeyPressed(SDL_SCANCODE_L)){
+        playField->setting_DT();
+    }
+    if(input->KeyPressed(SDL_SCANCODE_K)){
+        playField->FieldReset();
     }
     if(input->KeyPressed(SDL_SCANCODE_I)){
         std::cout << "I Grid_type print" << std::endl;
@@ -94,6 +146,30 @@ void game::handleEvent(){
     }
 }
 
+void game::moveUpdate(){
+    if(DAS_RIGHT){
+        if(DAS_Timer.getTicks() >= DAS_Delay){
+            tempBag[bagNum].Move('R');
+            DAS_Timer.reset();
+            lockDelayTimer.reset();
+        }
+    }
+    if(DAS_LEFT){
+        if(DAS_Timer.getTicks() >= DAS_Delay){
+            tempBag[bagNum].Move('L');
+            DAS_Timer.reset();
+            lockDelayTimer.reset();
+        }
+    }
+    if(DAS_DOWN){
+        if(DAS_Timer.getTicks() >= DAS_Delay){
+            tempBag[bagNum].Move('D');
+            DAS_Timer.reset();
+            lockDelayTimer.reset();
+        }
+    }
+}
+
 void game::render(SDL_Renderer* rend){
     playField->fieldDraw(rend);
     tempBag[bagNum].Render(rend);
@@ -102,3 +178,16 @@ void game::render(SDL_Renderer* rend){
 bool game::isGameRunning(){
     return GameRunning;
 }
+
+//디버그용
+void game::resetBag(){
+    vector2 createPos(5,21);
+    tempBag.clear();
+    tempBag.push_back(TetroMino(TTYPE_I, createPos));
+    tempBag.push_back(TetroMino(TTYPE_J, createPos));
+    tempBag.push_back(TetroMino(TTYPE_L, createPos));
+    tempBag.push_back(TetroMino(TTYPE_O, createPos));
+    tempBag.push_back(TetroMino(TTYPE_S, createPos));
+    tempBag.push_back(TetroMino(TTYPE_T, createPos));
+    tempBag.push_back(TetroMino(TTYPE_Z, createPos));
+}  

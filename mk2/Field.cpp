@@ -25,11 +25,17 @@ void Field::Release(){
 }
 
 Field::Field() : Grid(12, std::vector<grid>(42)){
+    FieldReset();
+}
+Field::~Field(){}
+
+void Field::FieldReset(){
     for(int i=0; i<12; i++){
         for(int j=0; j<42; j++){
             Grid[i][j].gridPosition.x = i;
             Grid[i][j].gridPosition.y = j;
             Grid[i][j].type = -1;
+            Grid[i][j].blocked = false;
             if(i==0 || i==11){
                 Grid[i][j].blocked = 1;
                 Grid[i][j].blocked = 1;
@@ -41,14 +47,13 @@ Field::Field() : Grid(12, std::vector<grid>(42)){
         }
     }
 }
-Field::~Field(){}
 
 bool Field::isMoveAble(vector2 nextPos){
     return !Grid[nextPos.x][nextPos.y].blocked;
 }
 
 void Field::FieldLock(vector2 lockPos, int newType){
-    Grid[lockPos.x][lockPos.y].blocked = 1;
+    Grid[lockPos.x][lockPos.y].blocked = true;
     Grid[lockPos.x][lockPos.y].type = newType;
 }
 
@@ -57,7 +62,7 @@ void Field::fieldDraw(SDL_Renderer* rend){
     int Y = STARTY;
     //출력되는거는 실제로 게임이 돌아가는 (1,1)~(10,20)
     for(int i=1; i<11; i++){
-        for(int j=0; j<20; j++){
+        for(int j=1; j<21; j++){
             SDL_Rect temp;
             temp.x = X;
             temp.y = Y;
@@ -122,4 +127,80 @@ void Field::fieldDraw(SDL_Renderer* rend){
         Y = STARTY;
         X+=TILE_SIZE;
     }
+}
+
+
+//디버그용
+void Field::setting_DT(){
+    Grid[1][1].type=TTYPE_O;
+    Grid[1][1].blocked = true;
+    Grid[2][1].type=TTYPE_O;
+    Grid[2][1].blocked = true;
+    Grid[1][2].type=TTYPE_O;
+    Grid[1][2].blocked = true;
+    Grid[2][2].type=TTYPE_O;
+    Grid[2][2].blocked = true;
+
+    Grid[4][1].type=TTYPE_L;
+    Grid[4][1].blocked = true;
+    Grid[5][1].type=TTYPE_L;
+    Grid[5][1].blocked = true;
+    Grid[6][1].type=TTYPE_L;
+    Grid[6][1].blocked = true;
+    Grid[6][2].type=TTYPE_L;
+    Grid[6][2].blocked = true;
+
+    Grid[7][1].type=TTYPE_I;
+    Grid[7][1].blocked = true;
+    Grid[7][2].type=TTYPE_I;
+    Grid[7][2].blocked = true;
+    Grid[7][3].type=TTYPE_I;
+    Grid[7][3].blocked = true;
+    Grid[7][4].type=TTYPE_I;
+    Grid[7][4].blocked = true;
+
+    Grid[8][1].type=TTYPE_J;
+    Grid[8][1].blocked = true;
+    Grid[8][2].type=TTYPE_J;
+    Grid[8][2].blocked = true;
+    Grid[9][1].type=TTYPE_J;
+    Grid[9][1].blocked = true;
+    Grid[10][1].type=TTYPE_J;
+    Grid[10][1].blocked = true;
+
+    Grid[1][3].type=TTYPE_J;
+    Grid[1][3].blocked = true;
+    Grid[1][4].type=TTYPE_J;
+    Grid[1][4].blocked = true;
+    Grid[1][5].type=TTYPE_J;
+    Grid[1][5].blocked = true;
+    Grid[2][5].type=TTYPE_J;
+    Grid[2][5].blocked = true;
+
+    Grid[4][2].type=TTYPE_S;
+    Grid[4][2].blocked = true;
+    Grid[5][2].type=TTYPE_S;
+    Grid[5][2].blocked = true;
+    Grid[5][3].type=TTYPE_S;
+    Grid[5][3].blocked = true;
+    Grid[6][3].type=TTYPE_S;
+    Grid[6][3].blocked = true;
+
+    Grid[4][4].type=TTYPE_T;
+    Grid[4][4].blocked = true;
+    Grid[5][4].type=TTYPE_T;
+    Grid[5][4].blocked = true;
+    Grid[6][4].type=TTYPE_T;
+    Grid[6][4].blocked = true;
+    Grid[5][5].type=TTYPE_T;
+    Grid[5][5].blocked = true;
+
+    Grid[4][5].type=TTYPE_L;
+    Grid[4][5].blocked = true;
+    Grid[4][6].type=TTYPE_L;
+    Grid[4][6].blocked = true;
+    Grid[4][7].type=TTYPE_L;
+    Grid[4][7].blocked = true;
+    Grid[3][7].type=TTYPE_L;
+    Grid[3][7].blocked = true;
 }
