@@ -1,10 +1,10 @@
 .PHONY: run Main clean
 
 #소스파일 경로
-SRC = ./src/main.cpp ./src/system/Window.cpp ./src/system/sdl/CreateButton.cpp \
-./src/system/sdl/SDL_Input.cpp ./src/system/menu/GameMenu.cpp \
-./src/system/menu/MainMenu.cpp ./src/system/sdl/SDL_font.cpp \
-./src/system/menu/Waiting.cpp #./src/system/game/game.cpp
+SRC = ./src/main.cpp ./src/system/Window.cpp \
+	./src/system/menu/MainMenu.cpp ./src/system/menu/GameMenu.cpp ./src/system/menu/Waiting.cpp \
+	./src/system/sdl/CreateButton.cpp ./src/system/sdl/SDL_font.cpp ./src/system/sdl/SDL_Input.cpp \
+
 #HDR = ./src/sdl/menuSample.h ./src/sdl/window_menu.h
 #HDR = ./src/Menu/MenuButton.h ./src/sdl/Particle.h
 OBJ = main #결과물 이름
