@@ -6,8 +6,8 @@ game::game():GameRunning(false){
     //gravity
     gravitySum = 0.0;
     fallInterval = 1000.0;
-    //lock
-    lockDelay = 800;
+   //lock
+    lockDelay = 800; 
     //DAS
     DAS_Delay = 200;
     DAS_DOWN = false;
@@ -58,6 +58,8 @@ void game::tick(){
 }
 
 void game::handleEvent(){
+    input->Update();
+
     if(input->KeyPressed(SDL_SCANCODE_UP)){
         std::cout << "UP" << std::endl;
         tempBag[bagNum].Rotate(true);
@@ -144,6 +146,8 @@ void game::handleEvent(){
         std::cout << "P Grid_blocked print" << std::endl;
         playField->FieldPrint_blocked();
     }
+
+    input->UpdatePrevInput();
 }
 
 void game::moveUpdate(){
